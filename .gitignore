@@ -1,0 +1,5 @@
+*~
+*.core
+obj
+crane-manifest/crane-manifest
+crane/crane

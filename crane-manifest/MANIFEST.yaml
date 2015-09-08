@@ -1,0 +1,11 @@
+---
+  name: 'dockerlint'
+  maintainer: 'Jasper Lievisse Adriaanse'
+  email: 'jasper@redcoolbeans.com'
+  homepage: 'https://github.com/redcoolbeans/dockerlint'
+  architecture:
+    - 'x86_64'
+  dependencies:
+    - name: 'nodejs'
+      repo: 'ssh://git@git.redcoolbeans.com:software/nodejs'
+      branch: '{{ .Customer }}'
