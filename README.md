@@ -25,7 +25,7 @@ too. These libraries must also be installed at build time:
 
 When these have been installed, install Crane with:
 
-	go get github.com/RedCoolBeans/crane
+	go get github.com/RedCoolBeans/crane/crane
 
 ## Usage
 
