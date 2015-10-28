@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"gopkg.in/libgit2/git2go.v22"
+	"gopkg.in/libgit2/git2go.v23"
 	"github.com/RedCoolBeans/crane/util/fs"
 	g "github.com/RedCoolBeans/crane/util/git"
 	log "github.com/RedCoolBeans/crane/util/logging"
@@ -91,7 +91,7 @@ func initGitOptions(sshOptions *ssh.SshOptions, branch string, repo string, carg
 			return 0
 		}
 
-		cbs := &git.RemoteCallbacks{
+		cbs := git.RemoteCallbacks{
 			CredentialsCallback:      credentialsCB,
 			CertificateCheckCallback: certificateCB,
 		}
