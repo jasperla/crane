@@ -8,13 +8,13 @@ import (
 	"regexp"
 	"strings"
 
-	"gopkg.in/libgit2/git2go.v22"
 	"github.com/RedCoolBeans/crane/util/fs"
 	g "github.com/RedCoolBeans/crane/util/git"
 	log "github.com/RedCoolBeans/crane/util/logging"
 	m "github.com/RedCoolBeans/crane/util/manifest"
 	ssh "github.com/RedCoolBeans/crane/util/ssh"
 	u "github.com/RedCoolBeans/crane/util/utils"
+	"gopkg.in/libgit2/git2go.v23"
 )
 
 var (
@@ -91,12 +91,16 @@ func initGitOptions(sshOptions *ssh.SshOptions, branch string, repo string, carg
 			return 0
 		}
 
-		cbs := &git.RemoteCallbacks{
+		rcbs := git.RemoteCallbacks{
 			CredentialsCallback:      credentialsCB,
 			CertificateCheckCallback: certificateCB,
 		}
 
-		options.RemoteCallbacks = cbs
+		fopts := &git.FetchOptions{
+			RemoteCallbacks: rcbs,
+		}
+
+		options.FetchOptions = fopts
 	} else {
 		cargoRepo = fmt.Sprintf("%s/%s", repo, cargo)
 	}
