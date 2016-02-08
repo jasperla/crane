@@ -41,11 +41,14 @@ func main() {
 		*verbose = true
 	}
 
-	if *clean {
+	// When running crane with -clean, don't remove itself while still
+	// running, unless it's supposed to be the only thing to do.
+	if *clean && !gotCargo(*cargo) {
 		fs.CleanSelf(*verbose)
+		return
 	}
 
-	if len(strings.TrimSpace(*cargo)) < 1 {
+	if !gotCargo(*cargo) {
 		log.PrError("No package specified to load")
 	}
 
@@ -58,8 +61,14 @@ func main() {
 	// Everything is setup, hand-off to the main loop
 	crane(*repo, *cargo, *branch, *prefix, *destination, *sshkey, *sshpass, &chain)
 
-	if *clean {
-		fs.CleanSelf(*verbose)
+	fs.CleanSelf(*verbose)
+}
+
+func gotCargo(cargo string) bool {
+	if len(strings.TrimSpace(cargo)) < 1 {
+		return false
+	} else {
+		return true
 	}
 }
 
