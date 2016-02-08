@@ -33,8 +33,8 @@ When these have been installed, install Crane with:
         -destination=/ -sshkey=/home/jasper/.ssh/id_rsa
 
 The public key name is derived from `sshkey`; if the key requires a
-password it can be passed with `-sshkey` though this is not
-recommended for unattended use.
+password it can be passed with `-sshpass` though this is not
+recommended for unattended use, or security.
 
 When Crane has installed all software, it can remove itself by passing
 the `-clean` argument to the last invocation. Or simply with:
@@ -87,6 +87,8 @@ in order to find missing fields; it currently lacks strict type-checking.
 - Fix static linking to create a truly standalone binary
 - WANTLIB-like script to find out what libs something has linked
   against, in order to list those as dependencies
+- Better SSH error handling, e.g. using a password protected key
+  returns: "Failed to authenticate SSH session: Callback returned error"
 
 ### Long term goals (roadmap)
 
