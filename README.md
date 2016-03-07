@@ -1,5 +1,7 @@
 # Crane
 
+![Crane](crane.png)
+
 Crane is a tool to deploy pre-built software or configuration directly
 from Git onto the local filesystem of a Docker image. This allows for
 installing only what's needed without any "recommended" dependencies
