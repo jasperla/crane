@@ -1,4 +1,4 @@
-package utils
+package util
 
 import "github.com/RedCoolBeans/crane/util/logging"
 
@@ -12,4 +12,3 @@ func Check(err error, fatal bool) {
 		}
 	}
 }
-

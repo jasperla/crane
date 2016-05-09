@@ -8,12 +8,12 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/RedCoolBeans/crane/util"
 	"github.com/RedCoolBeans/crane/util/fs"
 	g "github.com/RedCoolBeans/crane/util/git"
 	log "github.com/RedCoolBeans/crane/util/logging"
 	m "github.com/RedCoolBeans/crane/util/manifest"
 	ssh "github.com/RedCoolBeans/crane/util/ssh"
-	u "github.com/RedCoolBeans/crane/util/utils"
 	"gopkg.in/libgit2/git2go.v23"
 )
 
@@ -121,7 +121,7 @@ func initGitOptions(sshOptions *ssh.SshOptions, branch string, repo string, carg
 func crane(repo string, cargo string, branch string, prefix string, destination string, sshkey string, sshpass string, chain *m.DependencyChain) {
 	clonedir, err := fs.CreateTempDir()
 	defer fs.CleanTempDir(clonedir)
-	u.Check(err, false)
+	util.Check(err, false)
 	log.PrVerbose(*verbose, "Using %s to store temporary files", clonedir)
 
 	sshOptions := ssh.SshOptions{}
@@ -133,14 +133,14 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 		sshOptions.Sshpass = sshpass
 
 		err = ssh.Init(&sshOptions, repo, cargo)
-		u.Check(err, false)
+		util.Check(err, false)
 	}
 
 	options, cargoRepo := initGitOptions(&sshOptions, branch, repo, cargo)
 
 	log.PrInfo("Fetching %s (%s)...", cargo, branch)
 	headCommit, err := g.Clone(cargoRepo, branch, clonedir, *options)
-	u.Check(err, false)
+	util.Check(err, false)
 
 	log.PrVerbose(*verbose, "HEAD is at %s: %s", headCommit.Id(), headCommit.Summary())
 
@@ -172,7 +172,7 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	}
 
 	files, err := fs.FileList(path.Join(clonedir, prefix))
-	u.Check(err, true)
+	util.Check(err, true)
 
 	heavyLifting(files, destination, clonedir)
 
@@ -191,7 +191,7 @@ func heavyLifting(files []string, destination string, clonedir string) {
 
 		// Prevent losing the first directory on directory copies.
 		fileInfo, err := os.Stat(src)
-		u.Check(err, true)
+		util.Check(err, true)
 
 		re := regexp.MustCompile(clonedir + "/")
 
