@@ -68,6 +68,12 @@ supported:
   - `branch`, `prefix`: branch/prefix to use for this dependency.
     By default the same branch/prefix as the dependant package will
     be used (which in turn defaults to `master` and `` respectively)
+- `contents`: (array) contains a hash with names of files that are to
+   be installed. If not specified all files are installed verbatim.
+   Valid fields are:
+     - `path`: path to install the file to
+	 - `sha256`: SHA256 sum of the file
+	 - `mode`: filemode, defaults to `0644`
 
 Unless otherwise noted, all fields are strings. A basic utility called
 `crane-manifest` can be build with:

@@ -11,4 +11,9 @@ type Manifest struct {
 		Repo   string
 		Branch string
 	}
+	Contents []struct {
+		Path   string
+		Sha256 string
+		Mode   string
+	}
 }
