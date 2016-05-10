@@ -1,6 +1,8 @@
 package util
 
-import "github.com/RedCoolBeans/crane/util/logging"
+import (
+	"github.com/RedCoolBeans/crane/util/logging"
+)
 
 // Check abstracts away the horrid overuse of "if err != nil {}"
 func Check(err error, fatal bool) {
