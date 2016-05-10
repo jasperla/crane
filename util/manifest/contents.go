@@ -32,5 +32,24 @@ func ModeFor(manifest map[interface{}]interface{}, file string) string {
 		}
 	}
 
+	// file wasn't found
+	return ""
+}
+
+// Returns the hash for a given file matching the algorithm.
+func HashFor(manifest map[interface{}]interface{}, file string, algo string) string {
+	contents := Contents(manifest)
+
+	for _, c := range contents {
+		entry := c.(map[interface{}]interface{})
+		if entry["path"].(string) == file {
+			if checksum, ok := entry[algo].(string); ok {
+				return checksum
+			} else {
+				break
+			}
+		}
+	}
+
 	return ""
 }
