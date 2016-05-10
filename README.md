@@ -71,9 +71,9 @@ supported:
 - `contents`: (array) contains a hash with names of files that are to
    be installed. If not specified all files are installed verbatim.
    Valid fields are:
-     - `path`: path to install the file to
-	 - `sha256`: SHA256 sum of the file
-	 - `mode`: filemode, defaults to `0644`
+     - `path`: (string) path to install the file to
+	 - `sha256`: (string) SHA256 sum of the file
+	 - `mode`: (string) filemode, defaults to `0644`
 
 Unless otherwise noted, all fields are strings. A basic utility called
 `crane-manifest` can be build with:
