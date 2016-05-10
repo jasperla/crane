@@ -18,9 +18,7 @@ func Contents(manifest map[interface{}]interface{}) []interface{} {
 
 // Return the filemode for a given file. If no mode is found
 // the default is returned returns.
-func ModeFor(manifest map[interface{}]interface{}, file string) string {
-	contents := Contents(manifest)
-
+func ModeFor(contents []interface{}, file string) string {
 	for _, c := range contents {
 		entry := c.(map[interface{}]interface{})
 		if entry["path"].(string) == file {
@@ -37,9 +35,7 @@ func ModeFor(manifest map[interface{}]interface{}, file string) string {
 }
 
 // Returns the hash for a given file matching the algorithm.
-func HashFor(manifest map[interface{}]interface{}, file string, algo string) string {
-	contents := Contents(manifest)
-
+func HashFor(contents []interface{}, file string, algo string) string {
 	for _, c := range contents {
 		entry := c.(map[interface{}]interface{})
 		if entry["path"].(string) == file {
