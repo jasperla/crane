@@ -171,16 +171,16 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 		log.PrInfo("Returning to installation of %s", cargo)
 	}
 
-	files, err := fs.FileList(path.Join(clonedir, prefix))
-	util.Check(err, true)
-
-	heavyLifting(files, destination, clonedir)
+	heavyLifting(destination, clonedir, path.Join(clonedir, prefix))
 
 	log.PrInfo("Cleaning for %s", cargo)
 	fs.CleanTempDir(clonedir)
 }
 
-func heavyLifting(files []string, destination string, clonedir string) {
+func heavyLifting(destination string, clonedir string, prefix string) {
+	files, err := fs.FileList(path.Join(clonedir, prefix))
+	util.Check(err, true)
+
 	// Copy /* into the destination
 	for _, src := range files {
 		dst := destination
