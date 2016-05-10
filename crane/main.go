@@ -11,16 +11,21 @@ import (
 	"github.com/RedCoolBeans/crane/util"
 	"github.com/RedCoolBeans/crane/util/fs"
 	g "github.com/RedCoolBeans/crane/util/git"
+	"github.com/RedCoolBeans/crane/util/hash"
 	log "github.com/RedCoolBeans/crane/util/logging"
 	m "github.com/RedCoolBeans/crane/util/manifest"
-	ssh "github.com/RedCoolBeans/crane/util/ssh"
+	"github.com/RedCoolBeans/crane/util/ssh"
 	"gopkg.in/libgit2/git2go.v23"
 )
 
 var (
 	verbose *bool
 	debug   *bool
+	strict  *bool
 )
+
+// Default hashing algorithm used for verifying files
+const HASH_ALGO = "sha256"
 
 func main() {
 	cargo := flag.String("package", "", "Name of package to load")
@@ -33,6 +38,7 @@ func main() {
 	debug = flag.Bool("debug", false, "Enable debugging (uses panic(), implies -verbose)")
 	clean := flag.Bool("clean", false, "Remove crane after deployment")
 	prefix := flag.String("prefix", "", "Prefix into the repository to the files")
+	strict = flag.Bool("strict", true, "Enable strict signature and checksum checking")
 
 	flag.Parse()
 
@@ -178,6 +184,8 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 }
 
 func heavyLifting(destination string, clonedir string, prefix string) {
+	contents := m.Contents(parseManifest(clonedir))
+
 	files, err := fs.FileList(path.Join(clonedir, prefix))
 	util.Check(err, true)
 
@@ -205,6 +213,17 @@ func heavyLifting(destination string, clonedir string, prefix string) {
 		}
 
 		log.PrVerbose(*verbose, logmsg)
+
+		// Perform checksum verification on this file. If there's a hash recorded
+		// use it. If there is not and we're in strict mode, fail.
+		checksum := m.HashFor(contents, src, HASH_ALGO)
+		if *strict && checksum == "" {
+			log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
+		}
+
+		if ok := hash.Verify(contents, src, HASH_ALGO, *strict); !ok {
+			log.PrError("Checksum mismatch for %s (%s)", src, HASH_ALGO)
+		}
 
 		if err := fs.Install(src, dst); err != nil {
 			log.PrFatal("Could not install %s into %s: %s", src, dst, err)
