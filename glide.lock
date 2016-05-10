@@ -1,5 +1,5 @@
-hash: ad88b1c8325d32190bab159a3a588176c355728cd085ee2fc7b95bea51212cdd
-updated: 2016-05-09T13:44:09.103014521+02:00
+hash: 634b7f936496b8bd3164f3ee7f0411d81bdf390d38a572f91fefbdc4651aa277
+updated: 2016-05-10T16:02:19.546583358+02:00
 imports:
 - name: github.com/davecgh/go-spew
   version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
@@ -16,6 +16,11 @@ imports:
   - util/manifest
   - util/ssh
   - util/utils
+  - util
+- name: golang.org/x/crypto
+  version: 91ab96ae987aef3e74ab78b3aaf026109d206148
+  subpackages:
+  - openpgp
 - name: gopkg.in/libgit2/git2go.v23
   version: fa644d2fc9efa3baee93b525212d76dfa17a5db5
 - name: gopkg.in/yaml.v2
