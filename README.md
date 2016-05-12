@@ -86,6 +86,20 @@ Then run:
 
 in order to find missing fields; it currently lacks strict type-checking.
 
+## Signed MANIFEST files
+
+Checksums for clandestinely modified files are still considered valid if
+an the checksums in the manifest file are updated correspondingly. To combat this, the
+manifest file can be GPG signed, and by default `crane` will verify the signature
+before attempting to use a manifest.
+
+Crane requires two additional files:
+
+- The "detached" signature (default: `MANIFEST.yaml.sig`)
+- Public key of the signer (default: `pubkey.asc`)
+
+To sign a manifest: `gpg --armor --output MANIFEST.yaml.sig --detach-sig MANIFEST.yaml`
+
 ## ToDo
 
 ### Short term goals:

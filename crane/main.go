@@ -11,6 +11,7 @@ import (
 	"github.com/RedCoolBeans/crane/util"
 	"github.com/RedCoolBeans/crane/util/fs"
 	g "github.com/RedCoolBeans/crane/util/git"
+	"github.com/RedCoolBeans/crane/util/gpg"
 	"github.com/RedCoolBeans/crane/util/hash"
 	log "github.com/RedCoolBeans/crane/util/logging"
 	m "github.com/RedCoolBeans/crane/util/manifest"
@@ -39,6 +40,8 @@ func main() {
 	clean := flag.Bool("clean", false, "Remove crane after deployment")
 	prefix := flag.String("prefix", "", "Prefix into the repository to the files")
 	strict = flag.Bool("strict", true, "Enable strict signature and checksum checking")
+	pubkey := flag.String("pubkey", "pubkey.asc", "Path to GPG public key")
+	signature := flag.String("sig", "MANIFEST.yaml.sig", "Path to Manifest signature")
 
 	flag.Parse()
 
@@ -56,6 +59,15 @@ func main() {
 
 	if !gotCargo(*cargo) {
 		log.PrError("No package specified to load")
+	}
+
+	if *strict {
+		if ok, ids := gpg.Verify(*pubkey, *signature, *verbose); ok {
+			log.PrInfoBegin("Signature for MANIFEST.yaml verified\n")
+			log.PrInfoEnd("Signed by: %s\n", strings.Join(ids, "\n\t"))
+		} else {
+			log.PrError("INVALID signature for MANIFEST.yaml! Aborting.")
+		}
 	}
 
 	if err := fs.CanReadDir(*destination, "Destination directory"); err != nil {
