@@ -73,7 +73,7 @@ supported:
    Valid fields are:
      - `path`: (string) path to install the file to
 	 - `sha256`: (string) SHA256 sum of the file
-	 - `mode`: (string) filemode, defaults to `0644`
+	 - `mode`: (int) filemode, defaults to `0644`
 
 Unless otherwise noted, all fields are strings. A basic utility called
 `crane-manifest` can be build with:

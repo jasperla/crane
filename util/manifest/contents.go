@@ -1,6 +1,6 @@
 package manifest
 
-const DEFAULT_FILEMODE = "0644"
+const DEFAULT_FILEMODE = 0644
 
 // Contents() takes a Manifest and returns the array of contents. Omitted values
 // (i.e. filemode) are ignored.
@@ -18,11 +18,11 @@ func Contents(manifest map[interface{}]interface{}) []interface{} {
 
 // Return the filemode for a given file. If no mode is found
 // the default is returned returns.
-func ModeFor(contents []interface{}, file string) string {
+func ModeFor(contents []interface{}, file string) int {
 	for _, c := range contents {
 		entry := c.(map[interface{}]interface{})
 		if entry["path"].(string) == file {
-			if mode, ok := entry["mode"].(string); ok {
+			if mode, ok := entry["mode"].(int); ok {
 				return mode
 			} else {
 				return DEFAULT_FILEMODE
@@ -31,7 +31,7 @@ func ModeFor(contents []interface{}, file string) string {
 	}
 
 	// file wasn't found
-	return ""
+	return 0
 }
 
 // Returns the hash for a given file matching the algorithm.

@@ -240,6 +240,10 @@ func heavyLifting(destination string, clonedir string, prefix string) {
 		if err := fs.Install(src, dst); err != nil {
 			log.PrFatal("Could not install %s into %s: %s", src, dst, err)
 		}
+
+		if mode := m.ModeFor(contents, src); mode > 0 {
+			os.Chmod(dst, os.FileMode(mode))
+		}
 	}
 }
 
