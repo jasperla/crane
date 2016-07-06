@@ -43,7 +43,7 @@ the `-clean` argument to the last invocation. Or simply with:
 
     crane -clean
 
-## MANIFEST.yml
+## MANIFEST.yaml
 
 The `MANIFEST.yaml` file will be used by Crane to resolve and deploy
 dependencies (if any). It will also be used to track versions and
