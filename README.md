@@ -105,10 +105,7 @@ To sign a manifest: `gpg --armor --output MANIFEST.yaml.sig --detach-sig MANIFES
 ### Short term goals:
 
 - Add 'customer' flag which can be re-used in combination with the manifest
-- Allow building on CargOS nativly
 - Fix static linking to create a truly standalone binary
-- WANTLIB-like script to find out what libs something has linked
-  against, in order to list those as dependencies
 - Better SSH error handling, e.g. using a password protected key
   returns: "Failed to authenticate SSH session: Callback returned error"
 
