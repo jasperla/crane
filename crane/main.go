@@ -16,7 +16,7 @@ import (
 	log "github.com/RedCoolBeans/crane/util/logging"
 	m "github.com/RedCoolBeans/crane/util/manifest"
 	"github.com/RedCoolBeans/crane/util/ssh"
-	"gopkg.in/libgit2/git2go.v23"
+	"gopkg.in/libgit2/git2go.v24"
 )
 
 var (

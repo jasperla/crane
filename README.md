@@ -22,7 +22,7 @@ Currently Crane is built as a dynamic executable. This means that in
 order for it to run the dependant libraries must be installed
 too. These libraries must also be installed at build time:
 
-- libgit2 >= 0.23
+- libgit2 (0.24)
 - libssh2
 
 When these have been installed, install Crane with:
