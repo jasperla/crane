@@ -43,6 +43,19 @@ the `-clean` argument to the last invocation. Or simply with:
 
     crane -clean
 
+### Strict mode
+
+By default Crane operates in _strict mode_ which means the following:
+
+- the MANIFEST.yaml is required to be signed. I.e. the `MANIFEST.yaml.sig`
+  has to exist the package repository.
+- all files that are to be installed have to have their checksum recorded
+  in the `contents` section of the manifest. A missing or incorrect checksum
+  will result in termination. In non-strict mode a mismatch is fatal but the
+  absence of a checksum is not.
+
+Strict mode can be disabled with `-strict=false`
+
 ## MANIFEST.yaml
 
 The `MANIFEST.yaml` file will be used by Crane to resolve and deploy
