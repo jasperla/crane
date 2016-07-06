@@ -34,16 +34,26 @@ When these have been installed, install Crane with:
     crane -package=dockerlint -repo=ssh://git@github.com:RedCoolBeans \
         -destination=/ -sshkey=/home/jasper/.ssh/id_rsa
 
-Crane supports both HTTPS and SSH repositories.
+### Repositories
+
+Crane's building blocks are _packages_. These are Git repositories that
+contain the manifest files. In order for Crane to download such a _package_,
+it requires two parameters to specify the location: `-package` and `-repo`.
+The way they work is that they're concatenated like `repo + / + package` to
+get the actual URI. For example in the above it would result in:
+`ssh://git@github.com:RedCoolBeans/dockerlint`.
+
+Crane supports both HTTPS and SSH repositories. The `-repo` URI is to be
+specified as follows:
+
+- HTTPS: `https://SERVER/SUB/DIR`
+- SSH: `ssh://USERNAME@SERVER:SUB/DIR`
+
+### SSH keys
 
 The public key name is derived from `sshkey`; if the key requires a
 password it can be passed with `-sshpass` though this is not
 recommended for unattended use, or security.
-
-When Crane has installed all software, it can remove itself by passing
-the `-clean` argument to the last invocation. Or simply with:
-
-    crane -clean
 
 ### Strict mode
 
@@ -57,6 +67,13 @@ By default Crane operates in _strict mode_ which means the following:
   absence of a checksum is not.
 
 Strict mode can be disabled with `-strict=false`
+
+### "Self-destruct"
+
+When Crane has installed all software, it can remove itself by passing
+the `-clean` argument to the last invocation. Or simply with:
+
+    crane -clean
 
 ## MANIFEST.yaml
 
