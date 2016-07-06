@@ -11,7 +11,7 @@ import (
 func Clone(repository string, branch string, tempdir string, options git2go.CloneOptions) (*git2go.Commit, error) {
 	clone, err := git2go.Clone(repository, tempdir, &options)
 	if err != nil {
-		e := fmt.Sprintf("Could not clone %s (%s) into %s: %s", repository, branch, tempdir, err)
+		e := fmt.Sprintf("Could not clone %s (%s) into %s: %s\n    Are you using a password protected SSH key without -sshpass?", repository, branch, tempdir, err)
 		return nil, errors.New(e)
 	}
 

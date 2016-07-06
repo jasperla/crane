@@ -138,8 +138,6 @@ To sign a manifest: `gpg --armor --output MANIFEST.yaml.sig --detach-sig MANIFES
 
 - Add 'customer' flag which can be re-used in combination with the manifest
 - Fix static linking to create a truly standalone binary
-- Better SSH error handling, e.g. using a password protected key
-  returns: "Failed to authenticate SSH session: Callback returned error"
 
 ### Long term goals (roadmap)
 
