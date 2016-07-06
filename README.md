@@ -34,6 +34,8 @@ When these have been installed, install Crane with:
     crane -package=dockerlint -repo=ssh://git@github.com:RedCoolBeans \
         -destination=/ -sshkey=/home/jasper/.ssh/id_rsa
 
+Crane supports both HTTPS and SSH repositories.
+
 The public key name is derived from `sshkey`; if the key requires a
 password it can be passed with `-sshpass` though this is not
 recommended for unattended use, or security.
