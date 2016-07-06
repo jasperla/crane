@@ -12,6 +12,8 @@ import:
   subpackages:
   - spew
 - package: github.com/kardianos/osext
-- package: gopkg.in/libgit2/git2go.v23
+- package: gopkg.in/libgit2/git2go.v24
 - package: gopkg.in/yaml.v2
-- package: golang.org/x/crypto/openpgp
+- package: golang.org/x/crypto
+  subpackages:
+  - openpgp
