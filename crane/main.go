@@ -72,7 +72,9 @@ func main() {
 	// Everything is setup, hand-off to the main loop
 	crane(*repo, *cargo, *branch, *prefix, *destination, *sshkey, *sshpass, &chain)
 
-	fs.CleanSelf(*verbose)
+	if *clean {
+		fs.CleanSelf(*verbose)
+	}
 }
 
 func gotCargo(cargo string) bool {
