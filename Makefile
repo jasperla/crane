@@ -1,13 +1,11 @@
-all: build
+VERBOSE ?= -x
 
 static:
-	@go build -x -ldflags '-extldflags "-lpthread -lz -lssl -lcrypto -lssh2 -static"'
+	@cd crane && \
+		go build -o crane.static ${VERBOSE} -ldflags '-extldflags "-L/usr/lib64 -L/usr/pkg/lib -lssh2 -lssl -lcrypto -lz -lpthread -static"'
 
-build:
-	@go build
-
-fmt:
-	@gofmt -w *.go
+shared:
+	@go build ${VERBSE}
 
 clean:
-	rm -fr **.core crane/crane crane-manifest/crane-manifest **~ obj _obj
+	rm -fr **.core crane/crane{,.static} crane-manifest/crane-manifest **~ obj _obj

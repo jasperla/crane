@@ -29,6 +29,21 @@ When these have been installed, install Crane with:
 
 	go get github.com/RedCoolBeans/crane/crane
 
+### Static version
+
+In order to be truly standalone a static version of crane can be built.
+This requires that that libgit2 is built with `-DBUILD_SHARED_LIBS=Off`.
+
+For example on CargOS:
+
+	mkdir $GOPATH/src/github.com/RedCoolBeans
+	cd $GOPATH/src/github.com/RedCoolBeans
+	git clone https://github.com/RedCoolBeans/crane.git
+	pkgin in libgit2-static
+	make
+
+This creates a `crane/crane.static`.
+
 ## Usage
 
     crane -package=dockerlint -repo=ssh://git@github.com:RedCoolBeans \
@@ -137,7 +152,6 @@ To sign a manifest: `gpg --armor --output MANIFEST.yaml.sig --detach-sig MANIFES
 ### Short term goals:
 
 - Add 'customer' flag which can be re-used in combination with the manifest
-- Fix static linking to create a truly standalone binary
 
 ### Long term goals (roadmap)
 
