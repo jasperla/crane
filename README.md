@@ -36,7 +36,7 @@ This requires that that libgit2 is built with `-DBUILD_SHARED_LIBS=Off`.
 
 For example on CargOS:
 
-	mkdir $GOPATH/src/github.com/RedCoolBeans
+	mkdir -p $GOPATH/src/github.com/RedCoolBeans
 	cd $GOPATH/src/github.com/RedCoolBeans
 	git clone https://github.com/RedCoolBeans/crane.git
 	pkgin in libgit2-static
