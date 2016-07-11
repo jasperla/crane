@@ -40,7 +40,7 @@ For example on CargOS:
 	cd $GOPATH/src/github.com/RedCoolBeans
 	git clone https://github.com/RedCoolBeans/crane.git
 	pkgin in libgit2-static
-	make
+	bmake
 
 This creates a `crane/crane.static`.
 
