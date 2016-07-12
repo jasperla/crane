@@ -1,0 +1,18 @@
+---
+  name: 'dockerlint'
+  maintainer: 'Jasper Lievisse Adriaanse'
+  email: 'jasper@redcoolbeans.com'
+  homepage: 'https://github.com/redcoolbeans/dockerlint'
+  architecture:
+    - 'x86_64'
+  dependencies:
+    - name: 'nodejs'
+      repo: 'ssh://git@git.redcoolbeans.com:software/nodejs'
+      branch: '{{ .Customer }}'
+  contents:
+    - path: README
+      sha256: 52eba98ea2584afc1a03d92344181b09aa7ac7b9715d2b03942a88160a769bf3
+      mode: 0644
+    - path: script.sh
+      sha256: 4bc94a8b8ad00708da1a0986fd507146bf01fe2b97c95cd5ecf4c5c3147b8779
+      mode: 0755

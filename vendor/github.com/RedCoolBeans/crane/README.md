@@ -18,56 +18,32 @@ flexible and handle any file format. Build once, deploy everywhere.
 
 ## Install
 
-Dependencies:
+Currently Crane is built as a dynamic executable. This means that in
+order for it to run the dependant libraries must be installed
+too. These libraries must also be installed at build time:
 
 - libgit2 (0.24)
 - libssh2
-- [Glide](https://glide.sh/) (for updating dependencies)
 
 When these have been installed, install Crane with:
 
 	go get github.com/RedCoolBeans/crane/crane
-
-### Static version
-
-In order to be truly standalone a static version of crane can be built.
-This requires that that libgit2 is built with `-DBUILD_SHARED_LIBS=Off`.
-
-For example on CargOS:
-
-	mkdir -p $GOPATH/src/github.com/RedCoolBeans
-	cd $GOPATH/src/github.com/RedCoolBeans
-	git clone https://github.com/RedCoolBeans/crane.git
-	pkgin in libgit2-static
-	bmake
-
-This creates a `crane/crane.static`.
 
 ## Usage
 
     crane -package=dockerlint -repo=ssh://git@github.com:RedCoolBeans \
         -destination=/ -sshkey=/home/jasper/.ssh/id_rsa
 
-### Repositories
-
-Crane's building blocks are _packages_. These are Git repositories that
-contain the manifest files. In order for Crane to download such a _package_,
-it requires two parameters to specify the location: `-package` and `-repo`.
-The way they work is that they're concatenated like `repo + / + package` to
-get the actual URI. For example in the above it would result in:
-`ssh://git@github.com:RedCoolBeans/dockerlint`.
-
-Crane supports both HTTPS and SSH repositories. The `-repo` URI is to be
-specified as follows:
-
-- HTTPS: `https://SERVER/SUB/DIR`
-- SSH: `ssh://USERNAME@SERVER:SUB/DIR`
-
-### SSH keys
+Crane supports both HTTPS and SSH repositories.
 
 The public key name is derived from `sshkey`; if the key requires a
 password it can be passed with `-sshpass` though this is not
 recommended for unattended use, or security.
+
+When Crane has installed all software, it can remove itself by passing
+the `-clean` argument to the last invocation. Or simply with:
+
+    crane -clean
 
 ### Strict mode
 
@@ -82,13 +58,6 @@ By default Crane operates in _strict mode_ which means the following:
 
 Strict mode can be disabled with `-strict=false`
 
-### "Self-destruct"
-
-When Crane has installed all software, it can remove itself by passing
-the `-clean` argument to the last invocation. Or simply with:
-
-    crane -clean
-
 ## MANIFEST.yaml
 
 The `MANIFEST.yaml` file will be used by Crane to resolve and deploy
@@ -96,20 +65,20 @@ dependencies (if any). It will also be used to track versions and
 serve as a project/repository description. The following fields are
 supported:
 
-- `name`: (string) name of the software (REQUIRED)
-- `maintainer`: (string) maintainer name (REQUIRED)
-- `email`: (string) maintainer email (REQUIRED)
-- `homepage`: (string) project homepage
-- `version`: (string) project version (REQUIRED)
-- `revision`: (string) cargo revision (starts at _0_)
+- `name`: name of the software (REQUIRED)
+- `maintainer`: maintainer name (REQUIRED)
+- `email`: maintainer email (REQUIRED)
+- `homepage`: project homepage
+- `version`: project version (REQUIRED)
+- `revision`: cargo revision (starts at _0_)
 - `architecture`: (array) supported architectures. NB: This field
   is currently ignored and may require repository layout changes. By
   default `x86_64` will be assumed.
 - `dependencies`: (array) this contains a hash with the following
   fields:
-  - `name`: (string) dependency name (must correspond with the `name` of it's
+  - `name`: dependency name (must correspond with the `name` of it's
     manifest) (REQUIRED)
-  - `repo`: (string) repository in syntax as passed to crane with `-repo`
+  - `repo`: repository in syntax as passed to crane with `-repo`
     (REQUIRED)
   - `branch`, `prefix`: branch/prefix to use for this dependency.
     By default the same branch/prefix as the dependant package will
@@ -151,6 +120,9 @@ To sign a manifest: `gpg --armor --output MANIFEST.yaml.sig --detach-sig MANIFES
 ### Short term goals:
 
 - Add 'customer' flag which can be re-used in combination with the manifest
+- Fix static linking to create a truly standalone binary
+- Better SSH error handling, e.g. using a password protected key
+  returns: "Failed to authenticate SSH session: Callback returned error"
 
 ### Long term goals (roadmap)
 
