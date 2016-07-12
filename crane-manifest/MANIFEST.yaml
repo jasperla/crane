@@ -1,5 +1,6 @@
 ---
   name: 'dockerlint'
+  version: '1.0'
   maintainer: 'Jasper Lievisse Adriaanse'
   email: 'jasper@redcoolbeans.com'
   homepage: 'https://github.com/redcoolbeans/dockerlint'
