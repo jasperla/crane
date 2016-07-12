@@ -97,20 +97,20 @@ dependencies (if any). It will also be used to track versions and
 serve as a project/repository description. The following fields are
 supported:
 
-- `name`: name of the software (REQUIRED)
-- `maintainer`: maintainer name (REQUIRED)
-- `email`: maintainer email (REQUIRED)
-- `homepage`: project homepage
-- `version`: project version (REQUIRED)
-- `revision`: cargo revision (starts at _0_)
+- `name`: (string) name of the software (REQUIRED)
+- `maintainer`: (string) maintainer name (REQUIRED)
+- `email`: (string) maintainer email (REQUIRED)
+- `homepage`: (string) project homepage
+- `version`: (string) project version (REQUIRED)
+- `revision`: (string) cargo revision (starts at _0_)
 - `architecture`: (array) supported architectures. NB: This field
   is currently ignored and may require repository layout changes. By
   default `x86_64` will be assumed.
 - `dependencies`: (array) this contains a hash with the following
   fields:
-  - `name`: dependency name (must correspond with the `name` of it's
+  - `name`: (string) dependency name (must correspond with the `name` of it's
     manifest) (REQUIRED)
-  - `repo`: repository in syntax as passed to crane with `-repo`
+  - `repo`: (string) repository in syntax as passed to crane with `-repo`
     (REQUIRED)
   - `branch`, `prefix`: branch/prefix to use for this dependency.
     By default the same branch/prefix as the dependant package will
