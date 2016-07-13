@@ -194,6 +194,7 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	}
 
 	heavyLifting(destination, clonedir, path.Join(clonedir, prefix))
+	heavyLifting(destination, clonedir, prefix)
 
 	log.PrInfo("Cleaning for %s", cargo)
 	fs.CleanTempDir(clonedir)
