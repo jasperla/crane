@@ -1,26 +1,14 @@
-hash: d48467a16679df517e58830e5a989bc9ea77896a16aea2fb0ad281430b6131a4
-updated: 2016-07-06T15:44:01.500145807+02:00
+hash: f28d8cc36ae62d3ed0dae9f6459f930ab6ad709f8d38a83845b6cb353fb358ec
+updated: 2016-07-12T22:01:23.417472761+02:00
 imports:
 - name: github.com/davecgh/go-spew
-  version: 5215b55f46b2b919f50a1df0eaa5886afe4e3b3d
+  version: 85b6309b59bb3444356ac813b5ca5469933279b0
   subpackages:
   - spew
 - name: github.com/kardianos/osext
-  version: 29ae4ffbc9a6fe9fb2bc5029050ce6996ea1d3bc
-- name: github.com/RedCoolBeans/crane
-  version: 81d5fbecdfa7a74f0d0e70a07453ec0babed1139
-  subpackages:
-  - util/fs
-  - util/git
-  - util/logging
-  - util/manifest
-  - util/ssh
-  - util/utils
-  - util
-  - util/gpg
-  - util/hash
+  version: 85b6309b59bb3444356ac813b5ca5469933279b0
 - name: golang.org/x/crypto
-  version: 0c565bf13221fb55497d7ae2bb95694db1fd1bff
+  version: 85b6309b59bb3444356ac813b5ca5469933279b0
   subpackages:
   - openpgp
   - openpgp/armor
@@ -30,7 +18,7 @@ imports:
   - cast5
   - openpgp/elgamal
 - name: gopkg.in/libgit2/git2go.v24
-  version: 8eaae73f85dd3df78df80d2dac066eb0866444ae
+  version: 85b6309b59bb3444356ac813b5ca5469933279b0
 - name: gopkg.in/yaml.v2
-  version: a83829b6f1293c91addabc89d0571c246397bbf4
-devImports: []
+  version: 85b6309b59bb3444356ac813b5ca5469933279b0
+testImports: []

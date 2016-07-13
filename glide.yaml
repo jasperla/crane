@@ -1,13 +1,5 @@
 package: .
 import:
-- package: github.com/RedCoolBeans/crane
-  subpackages:
-  - util/fs
-  - util/git
-  - util/logging
-  - util/manifest
-  - util/ssh
-  - util/utils
 - package: github.com/davecgh/go-spew
   subpackages:
   - spew
