@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-var RequiredFields = [...]string{"name", "maintainer", "version", "architecture"}
+var RequiredFields = [...]string{"name", "maintainer", "version"}
 var RequiredDepFields = [...]string{"name", "repo"}
 
 func Validate(manifest map[interface{}]interface{}) error {
