@@ -112,6 +112,8 @@ supported:
 - `architecture`: (array) supported architectures. NB: This field
   is currently ignored and may require repository layout changes. By
   default `x86_64` will be assumed.
+- `destination`: (string) prefix to install this package into
+  (overrides the `-destination flag`).
 - `dependencies`: (array) this contains a hash with the following
   fields:
   - `name`: (string) dependency name (must correspond with the `name` of it's

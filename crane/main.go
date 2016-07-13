@@ -193,7 +193,14 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 		log.PrInfo("Returning to installation of %s", cargo)
 	}
 
-	heavyLifting(destination, clonedir, path.Join(clonedir, prefix))
+	// A `destination` field in the manifest overrides the flag.
+	// If we're here for a dependency of the main entrypoint, it
+	// will override the `destination` variable on every iteration.
+	if manifestDest, ok := manifest["destination"].(string); ok {
+		// if manifest["destination"].(string) != "" {
+		destination = manifestDest
+	}
+
 	heavyLifting(destination, clonedir, prefix)
 
 	log.PrInfo("Cleaning for %s", cargo)
