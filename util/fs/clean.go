@@ -7,22 +7,18 @@ import (
 	"github.com/kardianos/osext"
 )
 
-func CleanSelf(verbose bool) {
+func CleanSelf(path string, verbose bool) {
 	myname, err := osext.Executable()
 	if err != nil {
 		log.PrFatal("Could not get own executable name")
 	}
 
 	log.PrInfo("Removing self: %s", myname)
-
 	if err := os.Remove(myname); err != nil {
 		log.PrFatal("Could not remove %s", myname)
 	}
-}
 
-func CleanAll(path string, verbose bool) {
 	log.PrInfo("Removing: %s", path)
-
 	if err := os.RemoveAll(path); err != nil {
 		log.PrFatal("Could not remove %s", path)
 	}

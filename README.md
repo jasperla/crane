@@ -97,17 +97,11 @@ Strict mode can be disabled with `-strict=false`
 
 ### "Self-destruct"
 
-When Crane has installed all software, it can remove itself by passing
-the `-clean` argument to the last invocation. Or simply with:
+When Crane has installed all software, it will remove itself and `/home/crane`
+by passing the `-clean` argument to the last invocation. This allows for
+removing any trace of provisioning tools and SSH keys.
 
-    crane -clean
-
-Or to remove itself and `/home/crane` in case of usage on Parcel:
-
-	crane -clean-all
-
-This allows for a single flag to remove any trace of provisioning tools
-and SSH keys.
+It can be disabled with `-clean=false`.
 
 ## MANIFEST.yaml
 

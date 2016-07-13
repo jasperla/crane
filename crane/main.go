@@ -41,8 +41,7 @@ func main() {
 	sshpass := flag.String("sshpass", "", "SSH private key password")
 	verbose = flag.Bool("verbose", false, "Enable verbose logging")
 	debug = flag.Bool("debug", false, "Enable debugging (uses panic(), implies -verbose)")
-	clean := flag.Bool("clean", false, "Remove crane after deployment")
-	clean_all := flag.Bool("clean-all", false, "Remove crane and any SSH keys after deployment")
+	clean := flag.Bool("clean", true, "Remove crane after deployment any SSH keys after deployment")
 	prefix := flag.String("prefix", "", "Prefix into the repository to the files")
 	strict = flag.Bool("strict", true, "Enable strict signature and checksum checking")
 	pubkey = flag.String("pubkey", "pubkey.asc", "Path to GPG public key")
@@ -55,15 +54,10 @@ func main() {
 		*verbose = true
 	}
 
-	// -clean_all implies -clean
-	if *clean_all {
-		*clean = true
-	}
-
 	// When running crane with -clean, don't remove itself while still
 	// running, unless it's supposed to be the only thing to do.
 	if *clean && !gotCargo(*cargo) {
-		fs.CleanSelf(*verbose)
+		fs.CleanSelf(CRANE_HOME, *verbose)
 		return
 	}
 
@@ -81,11 +75,7 @@ func main() {
 	crane(*repo, *cargo, *branch, *prefix, *destination, *sshkey, *sshpass, &chain)
 
 	if *clean {
-		fs.CleanSelf(*verbose)
-	}
-
-	if *clean_all {
-		fs.CleanAll(CRANE_HOME, *verbose)
+		fs.CleanSelf(CRANE_HOME, *verbose)
 	}
 }
 
