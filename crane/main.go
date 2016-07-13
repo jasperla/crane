@@ -239,7 +239,14 @@ func heavyLifting(destination string, clonedir string, prefix string) {
 		}
 
 		if ok := hash.Verify(contents, src, HASH_ALGO, *strict); !ok {
-			log.PrError("Checksum mismatch for %s (%s)", src, HASH_ALGO)
+			emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
+			// Checksum mismatch is not an error condition when in non-strict mode,
+			// however it's important enough to notify the user.
+			if *strict {
+				log.PrError(emsg)
+			} else {
+				log.PrInfo(emsg)
+			}
 		}
 
 		if err := fs.Install(src, dst); err != nil {
