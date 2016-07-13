@@ -26,12 +26,16 @@ Dependencies:
 
 When these have been installed, install Crane with:
 
-	go get github.com/RedCoolBeans/crane/crane
+	go get -u github.com/RedCoolBeans/crane/crane
 
 ### Static version
 
 In order to be truly standalone a static version of crane can be built.
 This requires that that libgit2 is built with `-DBUILD_SHARED_LIBS=Off`.
+
+While CargOS ships with Go < 1.5 (i.e. no support for `vendor/`), you have
+to retrieve the dependencies first. Easiest is to run the above `go get`
+command and skip cloning the repository in the block below.
 
 For example on CargOS:
 
