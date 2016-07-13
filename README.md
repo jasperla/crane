@@ -52,8 +52,14 @@ This creates a `crane/crane.static`.
 
 ## Usage
 
-    crane -package=dockerlint -repo=ssh://git@github.com:RedCoolBeans \
-        -destination=/ -sshkey=/home/jasper/.ssh/id_rsa
+At the very least crane needs to know the `-package` it has to install,
+and the `-repository` where to find it:
+
+    crane -package=dockerlint -repo=ssh://git@github.com:RedCoolBeans
+
+For SSH connections it will proceed to use the `/home/crane/.ssh/id_rsa`
+key for authentication. Please refer to `crane -h` for a full overview
+of supported flags and their default values.
 
 ### Repositories
 

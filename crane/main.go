@@ -35,7 +35,7 @@ func main() {
 	branch := flag.String("branch", "master", "Branch or version")
 	destination := flag.String("destination", "/", "Destination for package on filesystem")
 	repo := flag.String("repo", "https://git.cargos.io/", "URI of repository base")
-	sshkey := flag.String("sshkey", "", "Path to SSH private key")
+	sshkey := flag.String("sshkey", "/home/crane/.ssh/id_rsa", "Path to SSH private key")
 	sshpass := flag.String("sshpass", "", "SSH private key password")
 	verbose = flag.Bool("verbose", false, "Enable verbose logging")
 	debug = flag.Bool("debug", false, "Enable debugging (uses panic(), implies -verbose)")
