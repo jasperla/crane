@@ -102,6 +102,13 @@ the `-clean` argument to the last invocation. Or simply with:
 
     crane -clean
 
+Or to remove itself and `/home/crane` in case of usage on Parcel:
+
+	crane -clean-all
+
+This allows for a single flag to remove any trace of provisioning tools
+and SSH keys.
+
 ## MANIFEST.yaml
 
 The `MANIFEST.yaml` file will be used by Crane to resolve and deploy

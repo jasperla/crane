@@ -3,8 +3,8 @@ package fs
 import (
 	"os"
 
-	"github.com/kardianos/osext"
 	log "github.com/RedCoolBeans/crane/util/logging"
+	"github.com/kardianos/osext"
 )
 
 func CleanSelf(verbose bool) {
@@ -16,6 +16,14 @@ func CleanSelf(verbose bool) {
 
 	if err := os.Remove(myname); err != nil {
 		log.PrFatal("Could not remove %s", myname)
+	}
+}
+
+func CleanAll(path string, verbose bool) {
+	log.PrVerbose(verbose, "Removing %s", path)
+
+	if err := os.RemoveAll(path); err != nil {
+		log.PrFatal("Could not remove %s", path)
 	}
 }
 

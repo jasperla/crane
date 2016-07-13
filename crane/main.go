@@ -27,8 +27,10 @@ var (
 	signature *string
 )
 
-// Default hashing algorithm used for verifying files
-const HASH_ALGO = "sha256"
+const (
+	HASH_ALGO  = "sha256"      // Default hashing algorithm used for verifying files
+	CRANE_HOME = "/home/crane" // Default directory with SSH key
+)
 
 func main() {
 	cargo := flag.String("package", "", "Name of package to load")
@@ -40,6 +42,7 @@ func main() {
 	verbose = flag.Bool("verbose", false, "Enable verbose logging")
 	debug = flag.Bool("debug", false, "Enable debugging (uses panic(), implies -verbose)")
 	clean := flag.Bool("clean", false, "Remove crane after deployment")
+	clean_all := flag.Bool("clean-all", false, "Remove crane and any SSH keys after deployment")
 	prefix := flag.String("prefix", "", "Prefix into the repository to the files")
 	strict = flag.Bool("strict", true, "Enable strict signature and checksum checking")
 	pubkey = flag.String("pubkey", "pubkey.asc", "Path to GPG public key")
@@ -50,6 +53,11 @@ func main() {
 	// debug implies verbose
 	if *debug {
 		*verbose = true
+	}
+
+	// -clean_all implies -clean
+	if *clean_all {
+		*clean = true
 	}
 
 	// When running crane with -clean, don't remove itself while still
@@ -74,6 +82,10 @@ func main() {
 
 	if *clean {
 		fs.CleanSelf(*verbose)
+	}
+
+	if *clean_all {
+		fs.CleanAll(CRANE_HOME, *verbose)
 	}
 }
 
