@@ -24,7 +24,7 @@ Dependencies:
 - libssh2
 - pkg-config
 - gcc
-- [Glide](https://glide.sh/) (for updating dependencies)
+- [Glide](https://glide.sh/) (only for development)
 
 When these have been installed, install Crane with:
 
