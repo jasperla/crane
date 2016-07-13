@@ -8,11 +8,12 @@ import (
 )
 
 func CleanSelf(verbose bool) {
-	log.PrVerbose(verbose, "Removing self")
 	myname, err := osext.Executable()
 	if err != nil {
 		log.PrFatal("Could not get own executable name")
 	}
+
+	log.PrInfo("Removing self: %s", myname)
 
 	if err := os.Remove(myname); err != nil {
 		log.PrFatal("Could not remove %s", myname)
@@ -20,7 +21,7 @@ func CleanSelf(verbose bool) {
 }
 
 func CleanAll(path string, verbose bool) {
-	log.PrVerbose(verbose, "Removing %s", path)
+	log.PrInfo("Removing: %s", path)
 
 	if err := os.RemoveAll(path); err != nil {
 		log.PrFatal("Could not remove %s", path)
