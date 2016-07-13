@@ -22,6 +22,8 @@ Dependencies:
 
 - libgit2 (0.24)
 - libssh2
+- pkg-config
+- gcc
 - [Glide](https://glide.sh/) (for updating dependencies)
 
 When these have been installed, install Crane with:
@@ -39,12 +41,12 @@ command and skip cloning the repository in the block below.
 
 For example on CargOS:
 
+	pkgin in libgit2-static libssh2 pkg-config bmake gcc49
 	mkdir -p $GOPATH/src/github.com/RedCoolBeans
 	cd $GOPATH/src/github.com/RedCoolBeans
 	git clone https://github.com/RedCoolBeans/crane.git
-	pkgin in libgit2-static
 	cd crane
-	bmake
+	bmake static
 
 This creates a `crane/crane.static`.
 
