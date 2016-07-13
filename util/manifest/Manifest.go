@@ -6,6 +6,7 @@ type Manifest struct {
 	Email        string
 	Homepage     string
 	Architecture []string
+	Destination  string
 	Dependencies struct {
 		Name   string
 		Repo   string

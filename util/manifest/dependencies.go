@@ -71,16 +71,3 @@ func DependencyBranch(dependency map[interface{}]interface{}, branch string) str
 
 	return depBranch
 }
-
-// DependencyPrefix resolver the prefix of a dependency
-func DependencyPrefix(dependency map[interface{}]interface{}, prefix string) string {
-	var depPrefix string
-
-	if dependency["prefix"] == nil {
-		depPrefix = prefix
-	} else {
-		depPrefix = dependency["prefix"].(string)
-	}
-
-	return depPrefix
-}
