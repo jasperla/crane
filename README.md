@@ -137,6 +137,49 @@ Then run:
 
 in order to find missing fields; it currently lacks strict type-checking.
 
+### Example
+
+An example manifest that would be located in the `dockerlint.git` repository:
+
+```
+---
+  name: 'dockerlint'
+  version: '1.0'
+  maintainer: 'Jasper Lievisse Adriaanse'
+  email: 'jasper@redcoolbeans.com'
+  homepage: 'https://github.com/redcoolbeans/dockerlint'
+  dependencies:
+    - name: 'nodejs'
+      repo: 'ssh://git@git.redcoolbeans.com:software/nodejs'
+      branch: '{{ .Customer }}'
+  contents:
+    - path: README
+      sha256: 52eba98ea2584afc1a03d92344181b09aa7ac7b9715d2b03942a88160a769bf3
+      mode: 0644
+    - path: script.sh
+      sha256: 4bc94a8b8ad00708da1a0986fd507146bf01fe2b97c95cd5ecf4c5c3147b8779
+      mode: 0755
+```
+
+The first fields (`name` through `homepage`) are metadata fields which describe the
+package at hand. The `version` would generally need to be set to the upstream package
+version, and the `revision` is to track local changes to the package itself.
+
+The `dependencies` block lists all repositories on which the current package depends.
+Note that the `branch` field in the above example contains [`text/template`](https://golang.org/pkg/text/template/)
+syntax, however that is currently not yet supported and merely a future task. The
+`branch` defaults to `master` and can be set to any arbitrary branch of the repository
+as needed by the package at hand.
+
+`contents` function as a packaging list, describing which files in this repository
+are to be installed. The `path` field is concatenated to the `-destination` flag
+of crane, or the `destination` field in the manifest (the latter takes precedence).
+Thus assuming a `-destination=/usr/local`, then the `script.sh` would be installed
+as `/usr/local/script.sh`.
+
+If omited, all files (excluding the `MANIFEST.yaml`) will be installed verbatim
+with the default modes corresponding to their type (see listing above).
+
 ## Signed MANIFEST files
 
 Checksums for clandestinely modified files are still considered valid if
