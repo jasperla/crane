@@ -276,7 +276,7 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 				log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
 			}
 
-			if ok := hash.Verify(contents, fullsrc, HASH_ALGO, *strict); !ok {
+			if ok := hash.Verify(contents, fullsrc, src, HASH_ALGO, *strict); !ok {
 				emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
 				// Checksum mismatch is not an error condition when in non-strict mode,
 				// however it's important enough to notify the user.
