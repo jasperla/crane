@@ -2,6 +2,7 @@ package gpg
 
 import (
 	"os"
+	"path"
 
 	"github.com/RedCoolBeans/crane/util/logging"
 	"golang.org/x/crypto/openpgp"
@@ -27,13 +28,13 @@ func Signature(path string) *os.File {
 	return signature
 }
 
-func Verify(pubkeyPath string, signaturePath string, verbose bool) (bool, []string) {
+func Verify(pubkeyPath string, signaturePath string, clonedir string, verbose bool) (bool, []string) {
 	ids := make([]string, 0)
 
 	pubkey := Pubkey(pubkeyPath)
-	signature := Signature(signaturePath)
+	signature := Signature(path.Join(clonedir, signaturePath))
 
-	manifest, err := os.Open(MANIFEST)
+	manifest, err := os.Open(path.Join(clonedir, MANIFEST))
 	if err != nil {
 		logging.PrError("Could not open %s: %v", MANIFEST, err)
 	}
