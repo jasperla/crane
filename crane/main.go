@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -221,57 +222,61 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	// If we're here for a dependency of the main entrypoint, it
 	// will override the `destination` variable on every iteration.
 	if manifestDest, ok := manifest["destination"].(string); ok {
-		// if manifest["destination"].(string) != "" {
 		destination = manifestDest
 	}
 
-	heavyLifting(destination, clonedir, prefix)
+	installer(destination, clonedir, prefix)
 
 	log.PrInfo("Cleaning for %s", cargo)
 	fs.CleanTempDir(clonedir)
 }
 
-func heavyLifting(destination string, clonedir string, prefix string) {
-	contents := m.Contents(parseManifest(clonedir))
+func install(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
+	first := true
 
-	files, err := fs.FileList(path.Join(clonedir, prefix))
-	util.Check(err, true)
+	log.PrVerbose(*verbose, "destination:%s, clonedir:%s\n", destination, clonedir)
 
-	// Copy /* into the destination
-	for _, src := range files {
-		dst := destination
-
-		if path.Base(src) == "MANIFEST.yaml" {
-			continue
+	return func(fullsrc string, info os.FileInfo, err error) error {
+		// The first time we execute, fullsrc is our clone directory, which we need to skip.
+		if first {
+			first = false
+			return nil
 		}
 
-		// Prevent losing the first directory on directory copies.
-		fileInfo, err := os.Stat(src)
-		util.Check(err, true)
-
+		// Declare some shortcut variables:
+		// file: the basename of our current `src` (i.e. the filename/dirname)
+		// installdir: the installation directory relative to `destination`
+		// src: file to install, relative to `clonedir`
 		re := regexp.MustCompile(clonedir + "/")
+		src := re.ReplaceAllString(fullsrc, "/")
+		file := path.Base(src)
+		installdir := path.Dir(src)
+		fmt.Printf("fullsrc:%s, src:%s, installdir:%s, file:%s\n", fullsrc, src, installdir, file)
 
-		var logmsg string
-		if fileInfo.IsDir() {
-			base := path.Base(src)
-			dst = path.Join(destination, base)
-			logmsg = fmt.Sprintf("Installing %s/ to %s/", re.ReplaceAllString(src, ""), dst)
-		} else {
-			logmsg = fmt.Sprintf("Installing %s to %s", re.ReplaceAllString(src, ""), dst)
+		// First check if our current src is a file that will never be installed
+		for _, skipfile := range []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig"} {
+			if file == skipfile {
+				log.PrVerbose(*verbose, "skipping %s", file)
+				return nil
+			}
 		}
 
-		log.PrVerbose(*verbose, logmsg)
+		fileInfo, err := os.Stat(fullsrc)
 
 		// Skip checksum checks for directories
-		if ! fileInfo.IsDir() {
+		if fileInfo.IsDir() {
+			log.PrInfo("Installing %s/", src)
+		} else {
+			log.PrInfo("Installing %s", src)
+
 			// Perform checksum verification on this file. If there's a hash recorded
 			// use it. If there is not and we're in strict mode, fail.
-			checksum := m.HashFor(contents, src, HASH_ALGO)
+			checksum := m.HashFor(contents, fullsrc, HASH_ALGO)
 			if *strict && checksum == "" {
 				log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
 			}
 
-			if ok := hash.Verify(contents, src, HASH_ALGO, *strict); !ok {
+			if ok := hash.Verify(contents, fullsrc, HASH_ALGO, *strict); !ok {
 				emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
 				// Checksum mismatch is not an error condition when in non-strict mode,
 				// however it's important enough to notify the user.
@@ -283,13 +288,27 @@ func heavyLifting(destination string, clonedir string, prefix string) {
 			}
 		}
 
-		if err := fs.Install(src, dst); err != nil {
-			log.PrFatal("Could not install %s into %s: %s", src, dst, err)
+		// fullsrc is the full path to the git cloned file,
+		// src is the file we're installing as/to (e.g. /usr/pkg/...)
+		if err := fs.Install(fullsrc, src, destination, *verbose); err != nil {
+			log.PrFatal("Could not install %s into %s: %s", fullsrc, destination, err)
 		}
 
+		// Finally set the mode for the full path to the final, on-disk copy of the file
 		if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
-			os.Chmod(dst, os.FileMode(mode))
+			os.Chmod(path.Join(destination, src), os.FileMode(mode))
 		}
+
+		return nil
+	}
+}
+
+func installer(destination string, clonedir string, prefix string) {
+	contents := m.Contents(parseManifest(clonedir))
+
+	err := filepath.Walk(path.Join(clonedir, prefix), install(destination, clonedir, contents))
+	if err != nil {
+		log.PrError("Install failed: %s", err.Error)
 	}
 }
 
