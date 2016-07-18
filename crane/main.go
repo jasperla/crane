@@ -151,6 +151,12 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	util.Check(err, false)
 	log.PrVerbose(*verbose, "Using %s to store temporary files", clonedir)
 
+
+	// `repo` needs a trailing slash to work with GitLab
+        if ! strings.HasSuffix(repo, "/") {
+                repo = repo + "/"
+        }
+
 	sshOptions := ssh.SshOptions{}
 	sshOptions.Enabled = false
 
