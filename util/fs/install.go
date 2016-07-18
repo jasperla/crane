@@ -35,7 +35,6 @@ func Install(fullsrc string, src string, dest string, verbose bool) (err error) 
 
 // CopyFile copies a single file
 func CopyFile(source string, dest string) (err error) {
-	log.PrInfo("source:%s, dest:%s", source, dest)
 	sourcefile, err := os.Open(source)
 	if err != nil {
 		return err

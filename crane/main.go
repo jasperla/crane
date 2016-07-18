@@ -251,7 +251,7 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 		src := re.ReplaceAllString(fullsrc, "/")
 		file := path.Base(src)
 		installdir := path.Dir(src)
-		fmt.Printf("fullsrc:%s, src:%s, installdir:%s, file:%s\n", fullsrc, src, installdir, file)
+		log.PrVerbose(*verbose, "fullsrc:%s, src:%s, installdir:%s, file:%s\n", fullsrc, src, installdir, file)
 
 		// First check if our current src is a file that will never be installed
 		for _, skipfile := range []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig"} {
