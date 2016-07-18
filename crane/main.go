@@ -29,9 +29,9 @@ var (
 )
 
 const (
-	HASH_ALGO  = "sha256"      // Default hashing algorithm used for verifying files
-	CRANE_HOME = "/home/crane" // Default directory with SSH key
-	DEFAULT_BRANCH = "master" // Default branch
+	HASH_ALGO      = "sha256"      // Default hashing algorithm used for verifying files
+	CRANE_HOME     = "/home/crane" // Default directory with SSH key
+	DEFAULT_BRANCH = "master"      // Default branch
 )
 
 func main() {
@@ -152,11 +152,10 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	util.Check(err, false)
 	log.PrVerbose(*verbose, "Using %s to store temporary files", clonedir)
 
-
 	// `repo` needs a trailing slash to work with GitLab
-        if ! strings.HasSuffix(repo, "/") {
-                repo = repo + "/"
-        }
+	if !strings.HasSuffix(repo, "/") {
+		repo = repo + "/"
+	}
 
 	sshOptions := ssh.SshOptions{}
 	sshOptions.Enabled = false
