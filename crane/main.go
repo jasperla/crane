@@ -31,6 +31,7 @@ var (
 const (
 	HASH_ALGO  = "sha256"      // Default hashing algorithm used for verifying files
 	CRANE_HOME = "/home/crane" // Default directory with SSH key
+	DEFAULT_BRANCH = "master" // Default branch
 )
 
 func main() {
@@ -201,7 +202,7 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	dependencies := m.Dependencies(manifest)
 	for _, d := range dependencies {
 		dep := d.(map[interface{}]interface{})
-		depBranch := m.DependencyBranch(dep, branch)
+		depBranch := m.DependencyBranch(dep, DEFAULT_BRANCH)
 		if err := m.PushDependency(dep["name"].(string), chain); err != nil {
 			log.PrError(err.Error())
 		}
