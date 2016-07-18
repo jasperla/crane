@@ -234,7 +234,7 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 func install(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
 	first := true
 
-	log.PrVerbose(*verbose, "destination:%s, clonedir:%s\n", destination, clonedir)
+	log.PrVerbose(*verbose, "destination:%s, clonedir:%s", destination, clonedir)
 
 	return func(fullsrc string, info os.FileInfo, err error) error {
 		// The first time we execute, fullsrc is our clone directory, which we need to skip.
@@ -251,7 +251,7 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 		src := re.ReplaceAllString(fullsrc, "/")
 		file := path.Base(src)
 		installdir := path.Dir(src)
-		log.PrVerbose(*verbose, "fullsrc:%s, src:%s, installdir:%s, file:%s\n", fullsrc, src, installdir, file)
+		log.PrVerbose(*verbose, "fullsrc:%s, src:%s, installdir:%s, file:%s", fullsrc, src, installdir, file)
 
 		// First check if our current src is a file that will never be installed
 		for _, skipfile := range []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig"} {
@@ -268,23 +268,33 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 			log.PrInfo("Installing %s/", src)
 		} else {
 			log.PrInfo("Installing %s", src)
-
-			// Perform checksum verification on this file. If there's a hash recorded
-			// use it. If there is not and we're in strict mode, fail.
-			checksum := m.HashFor(contents, fullsrc, HASH_ALGO)
-			if *strict && checksum == "" {
-				log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
-			}
-
-			if ok := hash.Verify(contents, fullsrc, src, HASH_ALGO, *strict); !ok {
-				emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
-				// Checksum mismatch is not an error condition when in non-strict mode,
-				// however it's important enough to notify the user.
-				if *strict {
-					log.PrError(emsg)
+			// XXX: Crane is blisfully unaware of symlinks...so ignore them when
+			// checking the hash. However it should eventually know about them for
+			// obvious reasons.
+			if fi, err := os.Lstat(fullsrc); err == nil {
+				if fi.Mode()&os.ModeSymlink != 0 {
+					log.PrVerbose(*verbose, "Symlink detected at %s, cowardly skipping checksum", fullsrc)
 				} else {
-					log.PrInfo(emsg)
+					// Perform checksum verification on this file. If there's a hash recorded
+					// use it. If there is not and we're in strict mode, fail.
+					checksum := m.HashFor(contents, fullsrc, HASH_ALGO)
+					if *strict && checksum == "" {
+						log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
+					}
+
+					if ok := hash.Verify(contents, fullsrc, src, HASH_ALGO, *strict); !ok {
+						emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
+						// Checksum mismatch is not an error condition when in non-strict mode,
+						// however it's important enough to notify the user.
+						if *strict {
+							log.PrError(emsg)
+						} else {
+							log.PrInfo(emsg)
+						}
+					}
 				}
+			} else {
+				log.PrError("Could not determine filetype for %s", fullsrc)
 			}
 		}
 
