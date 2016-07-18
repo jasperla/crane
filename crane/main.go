@@ -296,7 +296,14 @@ func installFucked(destination string, clonedir string, contents []interface{}) 
 }
 
 func install(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
+	first := true
+
 	return func(fullsrc string, info os.FileInfo, err error) error {
+		// The first time we execute, fullsrc is our clone directory, which we need to skip.
+		if first {
+			first = false
+			return nil
+		}
 
 		// Declare some shortcut variables:
 		// file: the basename of our current `src` (i.e. the filename/dirname)
@@ -309,12 +316,48 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 		fmt.Printf("src:%s, installdir:%s, file:%s\n", src, installdir, file)
 
 		// First check if our current src is a file that will never be installed
-		skipfiles := []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig"}
-		for _, skipfile := range skipfiles {
+		for _, skipfile := range []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig"} {
 			if file == skipfile {
 				log.PrVerbose(*verbose, "skipping %s", file)
 				return nil
 			}
+		}
+
+		fileInfo, err := os.Stat(fullsrc)
+
+		// Skip checksum checks for directories
+		if fileInfo.IsDir() {
+			log.PrInfo("Installing %s/", src)
+		} else {
+			log.PrInfo("Installing %s", src)
+
+			// Perform checksum verification on this file. If there's a hash recorded
+			// use it. If there is not and we're in strict mode, fail.
+			checksum := m.HashFor(contents, fullsrc, HASH_ALGO)
+			if *strict && checksum == "" {
+				log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
+			}
+
+			if ok := hash.Verify(contents, fullsrc, HASH_ALGO, *strict); !ok {
+				emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
+				// Checksum mismatch is not an error condition when in non-strict mode,
+				// however it's important enough to notify the user.
+				if *strict {
+					log.PrError(emsg)
+				} else {
+					log.PrInfo(emsg)
+				}
+			}
+		}
+
+		// fullsrc is the full path to the git cloned file,
+		// src is the file we're installing as/to (e.g. /usr/pkg/...)
+		if err := fs.Install(fullsrc, src); err != nil {
+			log.PrFatal("Could not install %s into %s: %s", src, src, err)
+		}
+
+		if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
+			os.Chmod(destination, os.FileMode(mode))
 		}
 
 		return nil
