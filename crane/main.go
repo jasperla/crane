@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -173,6 +174,8 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 		}
 	}
 
+	fmt.Printf("\nclonedir: %s\n\n", clonedir)
+
 	options, cargoRepo := initGitOptions(&sshOptions, branch, repo, cargo)
 
 	log.PrInfo("Fetching %s (%s)...", cargo, branch)
@@ -221,28 +224,21 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	// If we're here for a dependency of the main entrypoint, it
 	// will override the `destination` variable on every iteration.
 	if manifestDest, ok := manifest["destination"].(string); ok {
-		// if manifest["destination"].(string) != "" {
 		destination = manifestDest
 	}
 
-	heavyLifting(destination, clonedir, prefix)
+	installer(destination, clonedir, prefix)
 
 	log.PrInfo("Cleaning for %s", cargo)
 	fs.CleanTempDir(clonedir)
 }
 
-func heavyLifting(destination string, clonedir string, prefix string) {
-	contents := m.Contents(parseManifest(clonedir))
-
-	files, err := fs.FileList(path.Join(clonedir, prefix))
-	util.Check(err, true)
-
-	// Copy /* into the destination
-	for _, src := range files {
+func installFucked(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
+	return func(src string, info os.FileInfo, err error) error {
 		dst := destination
 
 		if path.Base(src) == "MANIFEST.yaml" {
-			continue
+			return nil
 		}
 
 		// Prevent losing the first directory on directory copies.
@@ -252,18 +248,21 @@ func heavyLifting(destination string, clonedir string, prefix string) {
 		re := regexp.MustCompile(clonedir + "/")
 
 		var logmsg string
+		dst = path.Join(destination, src)
+		dst = re.ReplaceAllString(dst, "/")
+
 		if fileInfo.IsDir() {
-			base := path.Base(src)
-			dst = path.Join(destination, base)
-			logmsg = fmt.Sprintf("Installing %s/ to %s/", re.ReplaceAllString(src, ""), dst)
+			logmsg = fmt.Sprintf("Installing %s/ to %s/", src, dst)
 		} else {
-			logmsg = fmt.Sprintf("Installing %s to %s", re.ReplaceAllString(src, ""), dst)
+			logmsg = fmt.Sprintf("Installing %s to %s", src, dst)
 		}
+
+		fmt.Printf("src=%s, dst=%s\n", src, dst)
 
 		log.PrVerbose(*verbose, logmsg)
 
 		// Skip checksum checks for directories
-		if ! fileInfo.IsDir() {
+		if !fileInfo.IsDir() {
 			// Perform checksum verification on this file. If there's a hash recorded
 			// use it. If there is not and we're in strict mode, fail.
 			checksum := m.HashFor(contents, src, HASH_ALGO)
@@ -290,6 +289,44 @@ func heavyLifting(destination string, clonedir string, prefix string) {
 		if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
 			os.Chmod(dst, os.FileMode(mode))
 		}
+
+		// fmt.Printf("path: %s; extra: %s\n", path, extra)
+		return nil
+	}
+}
+
+func install(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
+	return func(fullsrc string, info os.FileInfo, err error) error {
+
+		// Declare some shortcut variables:
+		// file: the basename of our current `src` (i.e. the filename/dirname)
+		// installdir: the installation directory relative to `destination`
+		// src: file to install, relative to `clonedir`
+		re := regexp.MustCompile(clonedir + "/")
+		src := re.ReplaceAllString(fullsrc, "/")
+		file := path.Base(src)
+		installdir := path.Dir(src)
+		fmt.Printf("src:%s, installdir:%s, file:%s\n", src, installdir, file)
+
+		// First check if our current src is a file that will never be installed
+		skipfiles := []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig"}
+		for _, skipfile := range skipfiles {
+			if file == skipfile {
+				log.PrVerbose(*verbose, "skipping %s", file)
+				return nil
+			}
+		}
+
+		return nil
+	}
+}
+
+func installer(destination string, clonedir string, prefix string) {
+	contents := m.Contents(parseManifest(clonedir))
+
+	err := filepath.Walk(path.Join(clonedir, prefix), install(destination, clonedir, contents))
+	if err != nil {
+		log.PrError("Install failed: %s", err.Error)
 	}
 }
 
