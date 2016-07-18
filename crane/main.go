@@ -174,8 +174,6 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 		}
 	}
 
-	fmt.Printf("\nclonedir: %s\n\n", clonedir)
-
 	options, cargoRepo := initGitOptions(&sshOptions, branch, repo, cargo)
 
 	log.PrInfo("Fetching %s (%s)...", cargo, branch)
@@ -233,70 +231,10 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	fs.CleanTempDir(clonedir)
 }
 
-func installFucked(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
-	return func(src string, info os.FileInfo, err error) error {
-		dst := destination
-
-		if path.Base(src) == "MANIFEST.yaml" {
-			return nil
-		}
-
-		// Prevent losing the first directory on directory copies.
-		fileInfo, err := os.Stat(src)
-		util.Check(err, true)
-
-		re := regexp.MustCompile(clonedir + "/")
-
-		var logmsg string
-		dst = path.Join(destination, src)
-		dst = re.ReplaceAllString(dst, "/")
-
-		if fileInfo.IsDir() {
-			logmsg = fmt.Sprintf("Installing %s/ to %s/", src, dst)
-		} else {
-			logmsg = fmt.Sprintf("Installing %s to %s", src, dst)
-		}
-
-		fmt.Printf("src=%s, dst=%s\n", src, dst)
-
-		log.PrVerbose(*verbose, logmsg)
-
-		// Skip checksum checks for directories
-		if !fileInfo.IsDir() {
-			// Perform checksum verification on this file. If there's a hash recorded
-			// use it. If there is not and we're in strict mode, fail.
-			checksum := m.HashFor(contents, src, HASH_ALGO)
-			if *strict && checksum == "" {
-				log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
-			}
-
-			if ok := hash.Verify(contents, src, HASH_ALGO, *strict); !ok {
-				emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
-				// Checksum mismatch is not an error condition when in non-strict mode,
-				// however it's important enough to notify the user.
-				if *strict {
-					log.PrError(emsg)
-				} else {
-					log.PrInfo(emsg)
-				}
-			}
-		}
-
-		if err := fs.Install(src, dst); err != nil {
-			log.PrFatal("Could not install %s into %s: %s", src, dst, err)
-		}
-
-		if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
-			os.Chmod(dst, os.FileMode(mode))
-		}
-
-		// fmt.Printf("path: %s; extra: %s\n", path, extra)
-		return nil
-	}
-}
-
 func install(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
 	first := true
+
+	log.PrVerbose(*verbose, "destination:%s, clonedir:%s\n", destination, clonedir)
 
 	return func(fullsrc string, info os.FileInfo, err error) error {
 		// The first time we execute, fullsrc is our clone directory, which we need to skip.
@@ -313,7 +251,7 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 		src := re.ReplaceAllString(fullsrc, "/")
 		file := path.Base(src)
 		installdir := path.Dir(src)
-		fmt.Printf("src:%s, installdir:%s, file:%s\n", src, installdir, file)
+		fmt.Printf("fullsrc:%s, src:%s, installdir:%s, file:%s\n", fullsrc, src, installdir, file)
 
 		// First check if our current src is a file that will never be installed
 		for _, skipfile := range []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig"} {
@@ -352,13 +290,13 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 
 		// fullsrc is the full path to the git cloned file,
 		// src is the file we're installing as/to (e.g. /usr/pkg/...)
-		if err := fs.Install(fullsrc, src); err != nil {
-			log.PrFatal("Could not install %s into %s: %s", src, src, err)
+		if err := fs.Install(fullsrc, file, src, destination, installdir, *verbose); err != nil {
+			log.PrFatal("Could not install %s into %s: %s", fullsrc, destination, err)
 		}
 
-		if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
-			os.Chmod(destination, os.FileMode(mode))
-		}
+		// if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
+		//   os.Chmod(destination, os.FileMode(mode))
+		// }
 
 		return nil
 	}
