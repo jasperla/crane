@@ -128,8 +128,7 @@ supported:
   - `repo`: (string) repository in syntax as passed to crane with `-repo`
     (REQUIRED)
   - `branch`, `prefix`: branch/prefix to use for this dependency.
-    By default the same branch/prefix as the dependant package will
-    be used (which in turn defaults to `master` and `` respectively)
+    Defaults to `master`.
 - `contents`: (array) contains a hash with names of files that are to
    be installed. If not specified all files are installed verbatim.
    Valid fields are:
