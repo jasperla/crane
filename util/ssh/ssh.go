@@ -3,7 +3,6 @@ package ssh
 import (
 	"errors"
 	"fmt"
-	"path"
 	"regexp"
 	"strings"
 
@@ -29,7 +28,8 @@ func Init(sshOptions *SshOptions, repository string, cargo string) error {
 		return err
 	}
 
-	sshOptions.Sshrepo = Repository(repository, cargo)
+	sshOptions.Sshrepo = repository + cargo
+
 	sshOptions.Sshuser = FindUserName(repository)
 
 	return nil
@@ -55,13 +55,6 @@ func ValidKey(path string, description string) error {
 
 func PubKey(privkey string) string {
 	return fmt.Sprintf("%s.pub", privkey)
-}
-
-func Repository(repository string, cargo string) string {
-	// Strip off the 'ssh://' part from repo, as we'd end up with a
-	// "malformed URL" error otherwise.
-	r := strings.TrimPrefix(repository, "ssh://")
-	return path.Join(r, cargo)
 }
 
 func FindUserName(repository string) string {
