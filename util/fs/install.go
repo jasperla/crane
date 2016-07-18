@@ -21,7 +21,7 @@ func Install(fullsrc string, src string, dest string, verbose bool) (err error) 
 	}
 
 	if sourceInfo.IsDir() {
-		if err := os.Mkdir(path.Join(dest, src), 0755); err != nil {
+		if err := os.MkdirAll(path.Join(dest, src), 0755); err != nil {
 			log.PrFatal("Could not create directory %s: %s", src, err)
 		}
 	} else {
