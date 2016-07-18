@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 	"path"
 	"regexp"
@@ -93,40 +94,51 @@ func initGitOptions(sshOptions *ssh.SshOptions, branch string, repo string, carg
 
 	var cargoRepo string
 
-	if sshOptions.Enabled {
-		cargoRepo = sshOptions.Sshrepo
-
-		// Resort to using local functions for the RemoteCallbacks.
-		// This way they can resolve the sshOptions fields which would
-		// otherwise be global and impossible to update when resolving
-		// them for dependencies.
-		var credentialsCB func(string, string, git.CredType) (git.ErrorCode, *git.Cred)
-		credentialsCB = func(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
-			ret, cred := git.NewCredSshKey(
-				sshOptions.Sshuser,
-				sshOptions.Sshpubkey,
-				sshOptions.Sshkey,
-				sshOptions.Sshpass)
-			return git.ErrorCode(ret), &cred
-		}
-
-		var certificateCB func(*git.Certificate, bool, string) git.ErrorCode
-		certificateCB = func(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
-			return 0
-		}
-
-		rcbs := git.RemoteCallbacks{
-			CredentialsCallback:      credentialsCB,
-			CertificateCheckCallback: certificateCB,
-		}
-
-		fopts := &git.FetchOptions{
-			RemoteCallbacks: rcbs,
-		}
-
-		options.FetchOptions = fopts
+	if u, err := url.Parse(repo); err != nil {
+		log.PrError(err.Error())
 	} else {
-		cargoRepo = fmt.Sprintf("%s/%s", repo, cargo)
+		if u.Scheme == "http" || u.Scheme == "https" {
+			// For compatability with GitLab (at least 8.9), the URI has to end with
+			// .git for HTTP(S). However to prevent having to add `.git` to all cargo
+			// fields, add it here if it's otherwise absent.
+			if !strings.HasSuffix(cargo, ".git") {
+				cargo = cargo + ".git"
+			}
+
+			cargoRepo = fmt.Sprintf("%s/%s", repo, cargo)
+		} else if sshOptions.Enabled {
+			cargoRepo = sshOptions.Sshrepo
+
+			// Resort to using local functions for the RemoteCallbacks.
+			// This way they can resolve the sshOptions fields which would
+			// otherwise be global and impossible to update when resolving
+			// them for dependencies.
+			var credentialsCB func(string, string, git.CredType) (git.ErrorCode, *git.Cred)
+			credentialsCB = func(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
+				ret, cred := git.NewCredSshKey(
+					sshOptions.Sshuser,
+					sshOptions.Sshpubkey,
+					sshOptions.Sshkey,
+					sshOptions.Sshpass)
+				return git.ErrorCode(ret), &cred
+			}
+
+			var certificateCB func(*git.Certificate, bool, string) git.ErrorCode
+			certificateCB = func(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
+				return 0
+			}
+
+			rcbs := git.RemoteCallbacks{
+				CredentialsCallback:      credentialsCB,
+				CertificateCheckCallback: certificateCB,
+			}
+
+			fopts := &git.FetchOptions{
+				RemoteCallbacks: rcbs,
+			}
+
+			options.FetchOptions = fopts
+		}
 	}
 
 	return options, cargoRepo
@@ -142,13 +154,17 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	sshOptions := ssh.SshOptions{}
 	sshOptions.Enabled = false
 
-	if ssh.CanHandle(repo) {
-		sshOptions.Enabled = true
-		sshOptions.Sshkey = sshkey
-		sshOptions.Sshpass = sshpass
+	if u, err := url.Parse(repo); err != nil {
+		log.PrError(err.Error())
+	} else {
+		if u.Scheme == "ssh" {
+			sshOptions.Enabled = true
+			sshOptions.Sshkey = sshkey
+			sshOptions.Sshpass = sshpass
 
-		err = ssh.Init(&sshOptions, repo, cargo)
-		util.Check(err, false)
+			err = ssh.Init(&sshOptions, repo, cargo)
+			util.Check(err, false)
+		}
 	}
 
 	options, cargoRepo := initGitOptions(&sshOptions, branch, repo, cargo)

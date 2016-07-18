@@ -15,37 +15,18 @@ func cleanup(fd *os.File, path string, t *testing.T) {
 	}
 }
 
-func TestCanHandle(t *testing.T) {
-	var tests = []struct {
-		in  string
-		out bool
-	}{
-		{"ssh://git@github.com/RedCoolBeans/", true},
-		{"ssh:/git@github.com/RedCoolBeans", false},
-		{"sftp://github.com/RedCoolBeans/", false},
-		{"open.ssh://", false},
-	}
-
-	for i, tt := range tests {
-		c := ssh.CanHandle(tt.in)
-		if c != tt.out {
-			t.Errorf("%d. %q => %q, wanted: %q", i, tt.in, c, tt.out)
-		}
-	}
-}
-
 func TestInit(t *testing.T) {
 	var tests = []struct {
-		sshkey string
-		sshkeycreate bool
-		repository string
-		cargo string
-		sshpubkey string
+		sshkey          string
+		sshkeycreate    bool
+		repository      string
+		cargo           string
+		sshpubkey       string
 		sshpubkeycreate bool
-		sshrepo string
-		sshuser string
-		err error
-	} {
+		sshrepo         string
+		sshuser         string
+		err             error
+	}{
 		{"/tmp/.crane-key", true, "ssh://git@github.com/RedCoolBeans/", "crane", "/tmp/.crane-key.pub", true, "git@github.com/RedCoolBeans/crane", "j", nil},
 	}
 

@@ -9,14 +9,6 @@ import (
 	fs "github.com/RedCoolBeans/crane/util/fs"
 )
 
-func CanHandle(repository string) bool {
-	if strings.HasPrefix(repository, "ssh://") {
-		return true
-	} else {
-		return false
-	}
-}
-
 func Init(sshOptions *SshOptions, repository string, cargo string) error {
 	if err := ValidKey(sshOptions.Sshkey, "Private key"); err != nil {
 		return err
