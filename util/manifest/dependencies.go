@@ -27,21 +27,18 @@ func PushDependency(name string, chain *DependencyChain) error {
 	}
 
 	// First walk to entire chain to see if we've added 'name' already
-	//for i := range chain.chain {
-	//	if chain.chain[i] == name {
-	//		// Found ourselves, print the would-be loop.
-	//		err := fmt.Sprintf("Cyclic dependency chain for %q\n", name)
-	//		loop := "\t"
-	//		for d := range chain.chain {
-	//			loop += fmt.Sprintf("%s --> ", chain.chain[d])
-	//		}
-	//		err += fmt.Sprintf("%s%s", loop, name)
-	//		return errors.New(err)
-	//	}
-	//}
+	foundSelf := false
+	for i := range chain.chain {
+		if chain.chain[i] == name {
+			// Found ourselves again, don't re-add us.
+			foundSelf = true
+		}
+	}
 
-	chain.depth += 1
-	chain.chain = append(chain.chain, name)
+	if ! foundSelf {
+		chain.depth += 1
+		chain.chain = append(chain.chain, name)
+	}
 
 	return nil
 }
