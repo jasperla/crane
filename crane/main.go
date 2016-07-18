@@ -290,13 +290,14 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 
 		// fullsrc is the full path to the git cloned file,
 		// src is the file we're installing as/to (e.g. /usr/pkg/...)
-		if err := fs.Install(fullsrc, file, src, destination, installdir, *verbose); err != nil {
+		if err := fs.Install(fullsrc, src, destination, *verbose); err != nil {
 			log.PrFatal("Could not install %s into %s: %s", fullsrc, destination, err)
 		}
 
-		// if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
-		//   os.Chmod(destination, os.FileMode(mode))
-		// }
+		// Finally set the mode for the full path to the final, on-disk copy of the file
+		if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
+			os.Chmod(path.Join(destination, src), os.FileMode(mode))
+		}
 
 		return nil
 	}

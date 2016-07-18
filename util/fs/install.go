@@ -12,8 +12,9 @@ import (
 // Special care is needed to ensure can copy a file to an
 // unnamed destination e.g. copy /file to /dest/ , we need
 // to append the /file to the destination.
-func Install(fullsrc string, file string, src string, dest string, installdir string, verbose bool) (err error) {
-	log.PrVerbose(verbose, "fullsrc:%s, file:%s, src:%s, dest:%s", fullsrc, file, src, dest)
+func Install(fullsrc string, src string, dest string, verbose bool) (err error) {
+	log.PrVerbose(verbose, "fullsrc:%s, src:%s, dest:%s", fullsrc, src, dest)
+
 	sourceInfo, err := os.Stat(fullsrc)
 	if err != nil {
 		return err
@@ -24,7 +25,7 @@ func Install(fullsrc string, file string, src string, dest string, installdir st
 			log.PrFatal("Could not create directory %s: %s", src, err)
 		}
 	} else {
-		if err := CopyFile(fullsrc, path.Join(dest, installdir, file)); err != nil {
+		if err := CopyFile(fullsrc, path.Join(dest, src)); err != nil {
 			log.PrFatal("Could not install file %s: %s", src, err)
 		}
 	}
