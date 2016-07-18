@@ -262,21 +262,24 @@ func heavyLifting(destination string, clonedir string, prefix string) {
 
 		log.PrVerbose(*verbose, logmsg)
 
-		// Perform checksum verification on this file. If there's a hash recorded
-		// use it. If there is not and we're in strict mode, fail.
-		checksum := m.HashFor(contents, src, HASH_ALGO)
-		if *strict && checksum == "" {
-			log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
-		}
+		// Skip checksum checks for directories
+		if ! fileInfo.IsDir() {
+			// Perform checksum verification on this file. If there's a hash recorded
+			// use it. If there is not and we're in strict mode, fail.
+			checksum := m.HashFor(contents, src, HASH_ALGO)
+			if *strict && checksum == "" {
+				log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
+			}
 
-		if ok := hash.Verify(contents, src, HASH_ALGO, *strict); !ok {
-			emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
-			// Checksum mismatch is not an error condition when in non-strict mode,
-			// however it's important enough to notify the user.
-			if *strict {
-				log.PrError(emsg)
-			} else {
-				log.PrInfo(emsg)
+			if ok := hash.Verify(contents, src, HASH_ALGO, *strict); !ok {
+				emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
+				// Checksum mismatch is not an error condition when in non-strict mode,
+				// however it's important enough to notify the user.
+				if *strict {
+					log.PrError(emsg)
+				} else {
+					log.PrInfo(emsg)
+				}
 			}
 		}
 
