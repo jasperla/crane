@@ -45,7 +45,7 @@ func main() {
 	clean := flag.Bool("clean", true, "Remove crane after deployment any SSH keys after deployment")
 	prefix := flag.String("prefix", "", "Prefix into the repository to the files")
 	strict = flag.Bool("strict", true, "Enable strict signature and checksum checking")
-	pubkey = flag.String("pubkey", "pubkey.asc", "Path to GPG public key")
+	pubkey = flag.String("pubkey", "/home/crane/pubkey.asc", "Path to GPG public key")
 	signature = flag.String("sig", "MANIFEST.yaml.sig", "Path to Manifest signature")
 
 	flag.Parse()
