@@ -209,10 +209,11 @@ To sign a manifest: `gpg --armor --output MANIFEST.yaml.sig --detach-sig MANIFES
 ### Short term goals:
 
 - Add 'customer' flag which can be re-used in combination with the manifest
+- Handle symlinks properly (and create actual links instead of copies)
 
 ### Long term goals (roadmap)
 
-- multi-platform support, including FreeBSD and Windows
+- multi-platform support, including Windows
 
 ## License
 
