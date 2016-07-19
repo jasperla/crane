@@ -254,7 +254,6 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	m.MarkDone(cargo, chain)
 
 	log.PrInfo("Cleaning for %s", cargo)
-	fs.CleanTempDir(clonedir)
 }
 
 func install(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
@@ -289,19 +288,21 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 
 		var ft Filetype
 		// Determine filetype by trying a symlink first
-		if fileInfo, err := os.Lstat(fullsrc); err != nil {
-			// A regular file it is then
-			if fileInfo, err = os.Stat(fullsrc); err != nil {
-				log.PrError("os.Stat() failed for %s", fullsrc)
+		if fileInfo, err := os.Lstat(fullsrc); err == nil {
+			if fileInfo.Mode()&os.ModeSymlink != 0 {
+				ft = LINK
 			} else {
-				if fileInfo.IsDir() {
-					ft = DIR
+				// A regular file it is then
+				if fileInfo, err = os.Stat(fullsrc); err != nil {
+					log.PrError("os.Stat() failed for %s\n", fullsrc)
 				} else {
-					ft = FILE
+					if fileInfo.IsDir() {
+						ft = DIR
+					} else {
+						ft = FILE
+					}
 				}
 			}
-		} else {
-			ft = LINK
 		}
 
 		// Skip checksum checks for directories
@@ -339,10 +340,24 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 			}
 		}
 
-		// fullsrc is the full path to the git cloned file,
-		// src is the file we're installing as/to (e.g. /usr/pkg/...)
-		if err := fs.Install(fullsrc, src, destination, *verbose); err != nil {
-			log.PrFatal("Could not install %s into %s: %s", fullsrc, destination, err)
+		// Resolve the link and re-instate it
+		if ft == LINK {
+			target, err := os.Readlink(fullsrc)
+			if err != nil {
+				log.PrError("Readlink() failed for: %s", fullsrc)
+			}
+
+			err = os.Symlink(target, path.Join(destination, src))
+			if err != nil {
+				fmt.Printf("Could not install symlink of %s -> %s\n", fullsrc, target)
+				return nil
+			}
+		} else {
+			// fullsrc is the full path to the git cloned file,
+			// src is the file we're installing as/to (e.g. /usr/pkg/...)
+			if err := fs.Install(fullsrc, src, destination, *verbose); err != nil {
+				log.PrFatal("Could not install %s into %s: %s", fullsrc, destination, err)
+			}
 		}
 
 		// Finally set the mode for the full path to the final, on-disk copy of the file
