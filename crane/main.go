@@ -24,6 +24,7 @@ import (
 var (
 	verbose   *bool
 	debug     *bool
+	silent    *bool
 	strict    *bool
 	pubkey    *string
 	signature *string
@@ -49,6 +50,7 @@ func main() {
 	strict = flag.Bool("strict", true, "Enable strict signature and checksum checking")
 	pubkey = flag.String("pubkey", "/home/crane/pubkey.asc", "Path to GPG public key")
 	signature = flag.String("sig", "MANIFEST.yaml.sig", "Path to Manifest signature")
+	silent = flag.Bool("silent", true, "Wether to supress as much output as possible")
 
 	flag.Parse()
 
@@ -281,9 +283,13 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 
 		// Skip checksum checks for directories
 		if fileInfo.IsDir() {
-			log.PrInfo2("Installing %s/", src)
+			if !*silent {
+				log.PrInfo2("Installing %s/", src)
+			}
 		} else {
-			log.PrInfo2("Installing %s", src)
+			if !*silent {
+				log.PrInfo2("Installing %s", src)
+			}
 			// XXX: Crane is blisfully unaware of symlinks...so ignore them when
 			// checking the hash. However it should eventually know about them for
 			// obvious reasons.
