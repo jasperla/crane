@@ -27,6 +27,11 @@ func PrInfoEnd(format string, v ...interface{}) {
 	fmt.Printf("%s\n", fmt.Sprintf(format, v...))
 }
 
+// Like PrInfo, but with 2 bars
+func PrInfo2(format string, v ...interface{}) {
+	fmt.Printf("==> %s\n", fmt.Sprintf(format, v...))
+}
+
 func PrVerbose(verbose bool, format string, v ...interface{}) {
 	if verbose {
 		fmt.Printf("==> %s\n", fmt.Sprintf(format, v...))

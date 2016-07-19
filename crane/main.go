@@ -265,9 +265,9 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 
 		// Skip checksum checks for directories
 		if fileInfo.IsDir() {
-			log.PrInfo("Installing %s/", src)
+			log.PrInfo2("Installing %s/", src)
 		} else {
-			log.PrInfo("Installing %s", src)
+			log.PrInfo2("Installing %s", src)
 			// XXX: Crane is blisfully unaware of symlinks...so ignore them when
 			// checking the hash. However it should eventually know about them for
 			// obvious reasons.
