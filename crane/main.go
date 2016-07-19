@@ -279,7 +279,7 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 		log.PrVerbose(*verbose, "fullsrc:%s, src:%s, installdir:%s, file:%s", fullsrc, src, installdir, file)
 
 		// First check if our current src is a file that will never be installed
-		for _, skipfile := range []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig"} {
+		for _, skipfile := range []string{".gitignore", "MANIFEST.yaml", "MANIFEST.yaml.sig", "README.md"} {
 			if file == skipfile {
 				log.PrVerbose(*verbose, "skipping %s", file)
 				return nil
@@ -288,19 +288,16 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 
 		var ft Filetype
 		// Determine filetype by trying a symlink first
+		// XXX: The code below is a bit of kludge and should probably
+		// be folded into a single block.
 		if fileInfo, err := os.Lstat(fullsrc); err == nil {
 			if fileInfo.Mode()&os.ModeSymlink != 0 {
 				ft = LINK
 			} else {
-				// A regular file it is then
-				if fileInfo, err = os.Stat(fullsrc); err != nil {
-					log.PrError("os.Stat() failed for %s\n", fullsrc)
+				if fileInfo.IsDir() {
+					ft = DIR
 				} else {
-					if fileInfo.IsDir() {
-						ft = DIR
-					} else {
-						ft = FILE
-					}
+					ft = FILE
 				}
 			}
 		}
