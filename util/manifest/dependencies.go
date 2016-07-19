@@ -3,11 +3,18 @@ package manifest
 import (
 	"errors"
 	"fmt"
+
+	log "github.com/RedCoolBeans/crane/util/logging"
 )
 
 type DependencyChain struct {
 	chain []string
+	done  []string
 	depth int
+}
+
+func ChainDepth(chain DependencyChain) int {
+	return chain.depth
 }
 
 func InitDependencyChain(self string) DependencyChain {
@@ -19,6 +26,18 @@ func InitDependencyChain(self string) DependencyChain {
 	return chain
 }
 
+func DependencyInstalled(name string, chain *DependencyChain) bool {
+	// Check if `name` has already been marked as finished
+	for i := range chain.done {
+		if chain.done[i] == name {
+			log.PrInfo("Already installed %s, skipping", name)
+			return true
+		}
+	}
+
+	return false
+}
+
 func PushDependency(name string, chain *DependencyChain) error {
 	// Arbitrarily chosen maximum depth
 	if chain.depth+1 > 64 {
@@ -26,7 +45,7 @@ func PushDependency(name string, chain *DependencyChain) error {
 		return errors.New(err)
 	}
 
-	// First walk to entire chain to see if we've added 'name' already
+	// First walk the chain to see if `name` is already in the queue
 	foundSelf := false
 	for i := range chain.chain {
 		if chain.chain[i] == name {
@@ -41,6 +60,13 @@ func PushDependency(name string, chain *DependencyChain) error {
 	}
 
 	return nil
+}
+
+// Mark `name` as done so we won't re-install it
+func MarkDone(name string, chain *DependencyChain) {
+	log.PrInfo2("Finished installation of %s", name)
+	chain.done = append(chain.done, name)
+	chain.depth -= 1
 }
 
 // Dependencies takes a Manifest and returns the dependencies

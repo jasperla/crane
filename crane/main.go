@@ -77,6 +77,12 @@ func main() {
 	// Everything is setup, hand-off to the main loop
 	crane(*repo, *cargo, *branch, *prefix, *destination, *sshkey, *sshpass, &chain)
 
+	// Non-zero depth means we skipped a dependency somewhere?
+	// XXX: Hidden under -debug for now
+	if *debug && (m.ChainDepth(chain) != 0) {
+		log.PrFatal("Non-zero dependency chain depth: %d", m.ChainDepth(chain))
+	}
+
 	if *clean {
 		fs.CleanSelf(CRANE_HOME, *verbose)
 	}
@@ -200,9 +206,14 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 
 	parent := false
 	dependencies := m.Dependencies(manifest)
+
 	for _, d := range dependencies {
 		dep := d.(map[interface{}]interface{})
 		depBranch := m.DependencyBranch(dep, DEFAULT_BRANCH)
+		if m.DependencyInstalled(dep["name"].(string), chain) {
+			continue
+		}
+
 		if err := m.PushDependency(dep["name"].(string), chain); err != nil {
 			log.PrError(err.Error())
 		}
@@ -225,7 +236,12 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 		destination = manifestDest
 	}
 
+	// Perform the actual installation
 	installer(destination, clonedir, prefix)
+
+	// Housekeeping: mark the cargo as installed so we won't try to
+	// add it to the dependency list again.
+	m.MarkDone(cargo, chain)
 
 	log.PrInfo("Cleaning for %s", cargo)
 	fs.CleanTempDir(clonedir)
