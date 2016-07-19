@@ -35,7 +35,7 @@ func PushDependency(name string, chain *DependencyChain) error {
 		}
 	}
 
-	if ! foundSelf {
+	if !foundSelf {
 		chain.depth += 1
 		chain.chain = append(chain.chain, name)
 	}
