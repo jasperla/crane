@@ -277,7 +277,7 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 				} else {
 					// Perform checksum verification on this file. If there's a hash recorded
 					// use it. If there is not and we're in strict mode, fail.
-					checksum := m.HashFor(contents, fullsrc, HASH_ALGO)
+					checksum := m.HashFor(contents, src, HASH_ALGO)
 					if *strict && checksum == "" {
 						log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
 					}
