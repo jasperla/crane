@@ -189,7 +189,7 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	if *strict {
 		if ok, ids := gpg.Verify(*pubkey, *signature, clonedir, *verbose); ok {
 			log.PrInfoBegin("Signature for MANIFEST.yaml verified\n")
-			log.PrInfoEnd("Signed by: %s\n", strings.Join(ids, "\n\t"))
+			log.PrInfoEnd("Signed by: %s", strings.Join(ids, "\n\t"))
 		} else {
 			log.PrError("INVALID signature for MANIFEST.yaml! Aborting.")
 		}
