@@ -36,6 +36,14 @@ const (
 	DEFAULT_BRANCH = "master"      // Default branch
 )
 
+type Filetype int64
+
+const (
+	FILE Filetype = iota
+	DIR
+	LINK
+)
+
 func main() {
 	cargo := flag.String("package", "", "Name of package to load")
 	branch := flag.String("branch", "master", "Branch or version")
@@ -279,44 +287,55 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 			}
 		}
 
-		fileInfo, err := os.Stat(fullsrc)
+		var ft Filetype
+		// Determine filetype by trying a symlink first
+		if fileInfo, err := os.Lstat(fullsrc); err != nil {
+			// A regular file it is then
+			if fileInfo, err = os.Stat(fullsrc); err != nil {
+				log.PrError("os.Stat() failed for %s", fullsrc)
+			} else {
+				if fileInfo.IsDir() {
+					ft = DIR
+				} else {
+					ft = FILE
+				}
+			}
+		} else {
+			ft = LINK
+		}
 
 		// Skip checksum checks for directories
-		if fileInfo.IsDir() {
+		if ft == DIR {
 			if !*silent {
 				log.PrInfo2("Installing %s/", src)
 			}
-		} else {
+		} else { // FILE or LINK
 			if !*silent {
 				log.PrInfo2("Installing %s", src)
 			}
 			// XXX: Crane is blisfully unaware of symlinks...so ignore them when
 			// checking the hash. However it should eventually know about them for
 			// obvious reasons.
-			if fi, err := os.Lstat(fullsrc); err == nil {
-				if fi.Mode()&os.ModeSymlink != 0 {
-					log.PrVerbose(*verbose, "Symlink detected at %s, cowardly skipping checksum", fullsrc)
-				} else {
-					// Perform checksum verification on this file. If there's a hash recorded
-					// use it. If there is not and we're in strict mode, fail.
-					checksum := m.HashFor(contents, src, HASH_ALGO)
-					if *strict && checksum == "" {
-						log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
-					}
+			if ft == LINK {
+				log.PrVerbose(*verbose, "Symlink detected at %s, cowardly skipping checksum", fullsrc)
+			} else {
+				// Perform checksum verification on this file. If there's a hash recorded
+				// use it. If there is not and we're in strict mode, fail.
+				checksum := m.HashFor(contents, src, HASH_ALGO)
+				if *strict && checksum == "" {
+					log.PrError("No %s checksum found in manifest for %s", HASH_ALGO, src)
+				}
 
-					if ok := hash.Verify(contents, fullsrc, src, HASH_ALGO, *strict); !ok {
-						emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
-						// Checksum mismatch is not an error condition when in non-strict mode,
-						// however it's important enough to notify the user.
-						if *strict {
-							log.PrError(emsg)
-						} else {
-							log.PrInfo(emsg)
-						}
+				if ok := hash.Verify(contents, fullsrc, src, HASH_ALGO, *strict); !ok {
+					emsg := fmt.Sprintf("Checksum mismatch or absent for %s (%s)", src, HASH_ALGO)
+					// Checksum mismatch is not an error condition when in non-strict mode,
+					// however it's important enough to notify the user.
+					if *strict {
+						log.PrError(emsg)
+					} else {
+						log.PrInfo(emsg)
 					}
 				}
-			} else {
-				log.PrError("Could not determine filetype for %s", fullsrc)
 			}
 		}
 
@@ -327,7 +346,7 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 		}
 
 		// Finally set the mode for the full path to the final, on-disk copy of the file
-		if mode := m.ModeFor(contents, src, fileInfo.IsDir()); mode > 0 {
+		if mode := m.ModeFor(contents, src, ft == DIR); mode > 0 {
 			os.Chmod(path.Join(destination, src), os.FileMode(mode))
 		}
 
