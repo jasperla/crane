@@ -193,10 +193,8 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	options, cargoRepo := initGitOptions(&sshOptions, branch, repo, cargo)
 
 	log.PrInfo("Fetching %s (%s)...", cargo, branch)
-	headCommit, err := g.Clone(cargoRepo, branch, clonedir, *options)
+	err = g.Clone(cargoRepo, branch, clonedir, *options)
 	util.Check(err, false)
-
-	log.PrVerbose(*verbose, "HEAD is at %s: %s", headCommit.Id(), headCommit.Summary())
 
 	if err := g.RemoveDotGit(clonedir); err != nil {
 		log.PrError(err.Error())
