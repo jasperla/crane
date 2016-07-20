@@ -67,13 +67,6 @@ func main() {
 		*verbose = true
 	}
 
-	// When running crane with -clean, don't remove itself while still
-	// running, unless it's supposed to be the only thing to do.
-	if *clean && !gotCargo(*cargo) {
-		fs.CleanSelf(CRANE_HOME, *verbose)
-		return
-	}
-
 	if !gotCargo(*cargo) {
 		log.PrError("No package specified to load")
 	}
