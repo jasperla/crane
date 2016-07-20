@@ -2,6 +2,7 @@ package manifest
 
 import (
 	"path"
+	"path/filepath"
 )
 
 // IgnorePatterns() takes a Manifest and returns the array of ignore patterns
@@ -40,7 +41,12 @@ func IsIgnored(patterns []interface{}, file string) bool {
 			return true
 		}
 
-		// XXX: Lastly globbing.
+		// Finally resort to globbing; simply return false in case of errors.
+		if matched, err := filepath.Match(pattern.(string), file); err != nil {
+			return false
+		} else if matched {
+			return true
+		}
 	}
 
 	return false
