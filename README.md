@@ -215,9 +215,6 @@ To sign a manifest: `gpg --armor --output MANIFEST.yaml.sig --detach-sig MANIFES
 
 - Add 'customer' flag which can be re-used in combination with the manifest
 - Handle symlinks properly (and checksum them)
-- Add support for an `exclude` section in the manifest which tells crane to
-  ignore certain files/directories (use basic globbing?) even if they're listed
-  in the `contents` section
 
 ### Long term goals (roadmap)
 
