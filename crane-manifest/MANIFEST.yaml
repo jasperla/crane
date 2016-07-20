@@ -4,6 +4,10 @@
   maintainer: 'Jasper Lievisse Adriaanse'
   email: 'jasper@redcoolbeans.com'
   homepage: 'https://github.com/redcoolbeans/dockerlint'
+  ignore:
+    - '/usr/pkg/share/man/'
+    - '/usr/pkg/share/doc/LICENSE'
+    - '/usr/pkg/lib/*.la'
   dependencies:
     - name: 'nodejs'
       repo: 'ssh://git@git.redcoolbeans.com:software/nodejs'

@@ -247,7 +247,7 @@ func crane(repo string, cargo string, branch string, prefix string, destination 
 	log.PrInfo("Cleaning for %s", cargo)
 }
 
-func install(destination string, clonedir string, contents []interface{}) filepath.WalkFunc {
+func install(destination string, clonedir string, contents []interface{}, ignore_patterns []interface{}) filepath.WalkFunc {
 	first := true
 
 	log.PrVerbose(*verbose, "destination:%s, clonedir:%s", destination, clonedir)
@@ -275,6 +275,12 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 				log.PrVerbose(*verbose, "skipping %s", file)
 				return nil
 			}
+		}
+
+		// Now see if the file/directory or any of the parent directories are ignored
+		if m.IsIgnored(ignore_patterns, src) {
+			log.PrVerbose(*verbose, "ignoring %s", src)
+			return nil
 		}
 
 		var ft Filetype
@@ -358,9 +364,11 @@ func install(destination string, clonedir string, contents []interface{}) filepa
 }
 
 func installer(destination string, clonedir string, prefix string) {
-	contents := m.Contents(parseManifest(clonedir))
+	manifest := parseManifest(clonedir)
+	contents := m.Contents(manifest)
+	ignores := m.IgnorePatterns(manifest)
 
-	err := filepath.Walk(path.Join(clonedir, prefix), install(destination, clonedir, contents))
+	err := filepath.Walk(path.Join(clonedir, prefix), install(destination, clonedir, contents, ignores))
 	if err != nil {
 		log.PrError("Install failed: %s", err.Error)
 	}

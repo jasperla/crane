@@ -121,6 +121,10 @@ supported:
   default `x86_64` will be assumed.
 - `destination`: (string) prefix to install this package into
   (overrides the `-destination flag`).
+- `ignore`: (array) files to ignore and skip the installation of:
+  - `/usr/pkg/share/man/`         # ignore entire directory
+  - `/usr/pkg/share/doc/LICENSE`  # ignore single file
+  - `/usr/pkg/lib/*.la`           # ignore through globbing
 - `dependencies`: (array) this contains a hash with the following
   fields. The `repo` field must end in a namespace element (user/group)
   and not in the actual target repository (i.e. `name`):

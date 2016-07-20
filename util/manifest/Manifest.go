@@ -17,4 +17,5 @@ type Manifest struct {
 		Sha256 string
 		Mode   string
 	}
+	Ignore []string
 }
