@@ -122,7 +122,8 @@ supported:
 - `destination`: (string) prefix to install this package into
   (overrides the `-destination flag`).
 - `dependencies`: (array) this contains a hash with the following
-  fields:
+  fields. The `repo` field must end in a namespace element (user/group)
+  and not in the actual target repository (i.e. `name`):
   - `name`: (string) dependency name (must correspond with the `name` of it's
     manifest) (REQUIRED)
   - `repo`: (string) repository in syntax as passed to crane with `-repo`
