@@ -28,7 +28,7 @@ func main() {
 	}
 
 	if *strict {
-		if ok, ids := gpg.Verify(*pubkey, *signature, *debug); ok {
+		if ok, ids := gpg.Verify(*pubkey, *signature, "", *debug); ok {
 			logging.PrInfoBegin("Signature for MANIFEST.yaml verified\n")
 			logging.PrInfoEnd("Signed by: %s\n", strings.Join(ids, "\n\t"))
 		} else {
